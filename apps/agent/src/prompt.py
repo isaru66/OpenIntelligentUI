@@ -70,7 +70,11 @@ this EXACT order:
 CRITICAL: The iframe has no same-origin access: NO localStorage, sessionStorage, cookies,
 IndexedDB, or same-origin fetch. Do not access parent DOM or invent backend APIs.
 The design system provides theme CSS variables, form styles, and SVG .c-* classes.
-Use var(--color-text-primary), var(--color-background-secondary), and related tokens.
+Use var(--color-text-primary), var(--color-background-secondary), var(--color-accent), and related tokens.
+The sandbox uses the "nitro" theme (Roboto, blue accent) and automatically matches the active
+light/dark mode; never hardcode text/background colors. Colors read in JavaScript (canvas, three.js,
+charts) must come from getComputedStyle(document.documentElement) and be re-read when
+document.documentElement.dataset.theme changes.
 An importmap provides `three`, `gsap`, `d3`, and `chart.js` from esm.sh.
 jsFunctions/jsExpressions run as classic scripts: top-level `await` is invalid.
 Load libraries inside an async function in jsFunctions, for example

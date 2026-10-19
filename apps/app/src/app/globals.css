@@ -60,7 +60,7 @@
   --radius-2xl: 24px;
 
   /* Typography */
-  --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-family: 'Roboto', system-ui, -apple-system, sans-serif;
 
   /* Component-level surfaces */
   --surface-primary:         #fff;
@@ -696,4 +696,74 @@ body, html {
 @keyframes fadeSlideUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* === Nitro theme (host) === */
+:root,
+:root.light {
+  --nitro-canvas: #F5F5F5;
+  --nitro-surface: #FFFFFF;
+  --nitro-surface-2: #F2F3F0;
+  --nitro-text: #333333;
+  --nitro-text-strong: #111111;
+  --nitro-muted: #5B5F66;
+  --nitro-accent: #0F5FFE;
+  --nitro-divider: #E1E2E5;
+  --nitro-control: #9DA4B3;
+  --nitro-prompt-shadow: 0px 8px 24px #0F5FFE14;
+  --nitro-switch-shadow: 0px 1px 2px #0000001a;
+  --nitro-chip-bg: #E8F0FE;
+  --nitro-chip-text: #0F5FFE;
+
+  --background: var(--nitro-canvas);
+  --foreground: var(--nitro-text);
+  --surface-primary: var(--nitro-surface);
+  --surface-secondary: var(--nitro-canvas);
+  --surface-tertiary: var(--nitro-surface-2);
+  --surface-quaternary: var(--nitro-surface-2);
+  --surface-btn: var(--nitro-surface);
+  --surface-btn-hover: var(--nitro-surface-2);
+  --surface-dialog: var(--nitro-surface);
+  --text-primary: var(--nitro-text);
+  --text-secondary: var(--nitro-muted);
+  --border-default: var(--nitro-divider);
+  --border-hover: var(--nitro-control);
+  --color-text-primary: var(--nitro-text);
+  --color-text-secondary: var(--nitro-muted);
+  --color-border: var(--nitro-divider);
+  --copilot-kit-primary-color: var(--nitro-accent);
+}
+
+:root.dark {
+  --nitro-canvas: #252629;
+  --nitro-surface: #1F1F1F;
+  --nitro-surface-2: #2E2E2E;
+  --nitro-text: #F5F5F5;
+  --nitro-text-strong: #F5F5F5;
+  --nitro-muted: #A0A6B2;
+  --nitro-accent: #0F5FFE;
+  --nitro-divider: #2E2E2E;
+  --nitro-control: #414347;
+  --nitro-prompt-shadow: none;
+  --nitro-switch-shadow: 0px 1px 2px #0000004d;
+  --nitro-chip-bg: #3C4352;
+  --nitro-chip-text: #B2CCFF;
+
+  --background: var(--nitro-canvas);
+  --foreground: var(--nitro-text);
+  --surface-primary: var(--nitro-surface);
+  --surface-secondary: var(--nitro-canvas);
+  --surface-tertiary: var(--nitro-surface-2);
+  --surface-quaternary: var(--nitro-surface-2);
+  --surface-btn: var(--nitro-surface-2);
+  --surface-btn-hover: #383838;
+  --surface-dialog: var(--nitro-surface);
+  --text-primary: var(--nitro-text);
+  --text-secondary: var(--nitro-muted);
+  --border-default: var(--nitro-divider);
+  --border-hover: var(--nitro-control);
+  --color-text-primary: var(--nitro-text);
+  --color-text-secondary: var(--nitro-muted);
+  --color-border: var(--nitro-divider);
 }

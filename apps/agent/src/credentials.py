@@ -13,6 +13,8 @@ from copilotkit import LangGraphAGUIAgent
 from langsmith import tracing_context
 from starlette.responses import JSONResponse
 
+from src.selection import current_selection, parse_selection
+
 
 @dataclass(frozen=True)
 class Credentials:
@@ -68,13 +70,16 @@ class CredentialsMiddleware:
             return await JSONResponse({'ok': False, 'code': 'invalid_keys'}, status_code=400)(scope, receive, send)
         if scope['path'] == '/' and not credentials and not server_credentials_available():
             return await JSONResponse({'ok': False, 'code': 'credentials_required'}, status_code=401)(scope, receive, send)
+        selection = parse_selection(scope.get('headers', []))
         clean_scope = {**scope, 'headers': [(k, v) for k, v in scope.get('headers', []) if k.lower() not in SENSITIVE_HEADERS]}
         token = current_credentials.set(credentials)
+        selection_token = current_selection.set(selection)
         try:
             # BYOK provider calls and graph runs must never enter hosted traces.
             with tracing_context(enabled=False if credentials else None):
                 await self.app(clean_scope, receive, send)
         finally:
+            current_selection.reset(selection_token)
             current_credentials.reset(token)
 
 

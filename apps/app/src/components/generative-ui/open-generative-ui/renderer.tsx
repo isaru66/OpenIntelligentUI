@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSandboxFunctions } from "@copilotkit/react-core/v2";
+import { useTheme } from "@/hooks/use-theme";
 import { ExportOverlay } from "../export-overlay";
 import { assembleStandaloneHtmlFromActivity } from "../export-utils";
 import { IDIOMORPH_JS } from "../idiomorph-inline";
@@ -14,7 +15,6 @@ import {
   MEASUREMENT_JS,
   PREVIEW_FRAME_CONTENT,
   RESIZE_MESSAGE_TYPE,
-  resolveFrameTheme,
 } from "./frame-content";
 import { extractCompleteStyles, processPartialHtml } from "./process-partial-html";
 import { loadWebsandbox, type SandboxInstance } from "./websandbox-loader";
@@ -150,6 +150,11 @@ const OpenGenUIActivityRendererInner = React.memo(
     const initialHeight = content.initialHeight ?? 200;
     const [autoHeight, setAutoHeight] = useState<number | null>(null);
     const sandboxFunctions = useSandboxFunctions();
+    const { resolvedTheme } = useTheme();
+    const themeRef = useRef(resolvedTheme);
+    useEffect(() => {
+      themeRef.current = resolvedTheme;
+    }, [resolvedTheme]);
 
     const localApi = useMemo(() => {
       const api: Record<string, (args: unknown) => unknown> = {};
@@ -214,7 +219,7 @@ const OpenGenUIActivityRendererInner = React.memo(
             previewReadyRef.current = true;
 
             sandbox.run(IDIOMORPH_JS);
-            sandbox.run(buildThemeScript(resolveFrameTheme()));
+            sandbox.run(buildThemeScript(themeRef.current));
             sandbox.run(
               `document.head.innerHTML = ${JSON.stringify(
                 buildPreviewHeadContent(css, previewStyles)
@@ -285,7 +290,7 @@ const OpenGenUIActivityRendererInner = React.memo(
 
           const sandbox = Websandbox.create(localApi, {
             frameContainer: container,
-            frameContent: buildFinalFrameContent(fullHtml, css),
+            frameContent: buildFinalFrameContent(fullHtml, css, themeRef.current),
             allowAdditionalAttributes: "",
           });
           sandboxRef.current = sandbox;
@@ -326,6 +331,17 @@ const OpenGenUIActivityRendererInner = React.memo(
         setAutoHeight(null);
       };
     }, [fullHtml, css, localApi]);
+
+    // Effect 1b — live theme sync for preview and final sandboxes (no regeneration)
+    useEffect(() => {
+      const script = buildThemeScript(resolvedTheme);
+      if (previewSandboxRef.current && previewReadyRef.current) {
+        previewSandboxRef.current.run(script);
+      }
+      if (sandboxRef.current && sandboxReadyRef.current) {
+        sandboxRef.current.run(script);
+      }
+    }, [resolvedTheme]);
 
     // Effect 2 — jsFunctions injection (once per final sandbox)
     useEffect(() => {

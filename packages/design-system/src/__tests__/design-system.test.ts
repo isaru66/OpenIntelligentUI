@@ -68,3 +68,17 @@ describe("IMPORTMAP_SCRIPT_TAG", () => {
     expect(IMPORTMAP_SCRIPT_TAG).toContain('"three": "https://esm.sh/three"');
   });
 });
+
+describe("nitro theme", () => {
+  it("defines nitro light and dark tokens", () => {
+    expect(THEME_CSS).toContain("#0F5FFE");
+    expect(THEME_CSS).toContain("#1F1F1F");
+    expect(THEME_CSS).toContain("Roboto");
+    expect(THEME_CSS).toContain(':root[data-theme="dark"]');
+    expect(THEME_CSS).not.toContain("#f7f6f3");
+  });
+
+  it("uses the accent in form styles", () => {
+    expect(FORM_STYLES_CSS).toContain("var(--color-accent)");
+  });
+});

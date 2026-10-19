@@ -39,8 +39,8 @@ def _is_foundry_or_openai_model(model_name: str) -> bool:
     return model_name == "chat-latest" or model_name.startswith(FOUNDRY_MODEL_PREFIXES)
 
 
-def build_model(*, allow_unconfigured: bool = False) -> BaseChatModel:
-    model_name = os.environ.get("LLM_MODEL", DEFAULT_MODEL).strip()
+def build_model(*, allow_unconfigured: bool = False, model_name: str | None = None) -> BaseChatModel:
+    model_name = (model_name or os.environ.get("LLM_MODEL", DEFAULT_MODEL)).strip()
     is_openai = _is_foundry_or_openai_model(model_name)
     is_claude = model_name.startswith("claude-")
     if not is_openai and not is_claude:
@@ -106,11 +106,30 @@ class UnconfiguredModel(BaseChatModel):
         return self
 
 
+_selected_models: dict[str, BaseChatModel] = {}
+
+
+def selected_model(fallback):
+    """Honour the allowlisted x-ai-model choice; any unusable choice keeps the server default."""
+    from src.selection import AI_MODELS, current_selection
+    name = current_selection.get().ai_model
+    if name not in AI_MODELS or name == os.environ.get("LLM_MODEL", DEFAULT_MODEL).strip():
+        return fallback
+    if name.startswith("claude-") and not os.environ.get("ANTHROPIC_API_KEY", "").strip():
+        return fallback
+    if name not in _selected_models:
+        try:
+            _selected_models[name] = build_model(model_name=name)
+        except ValueError:
+            return fallback
+    return _selected_models[name]
+
+
 def request_model(fallback):
     from src.credentials import current_credentials
     credentials = current_credentials.get()
     if credentials is None:
-        return fallback
+        return selected_model(fallback)
     from langchain_openai import ChatOpenAI
     from openai import AsyncOpenAI, OpenAI, DefaultAsyncHttpxClient, DefaultHttpxClient
 

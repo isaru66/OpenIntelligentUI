@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { CopilotKit } from "@copilotkit/react-core";
 import { CopilotChatConfigurationProvider } from "@copilotkit/react-core/v2";
 import { OPEN_GEN_UI_DESIGN_SKILL } from "@repo/design-system";
@@ -8,6 +9,7 @@ import { SANDBOX_FUNCTIONS } from "@/lib/sandbox/sandbox-functions";
 import { OpenGenUIPromptBridge } from "@/lib/sandbox/prompt-bridge";
 import { tableCatalog } from "@/components/generative-ui/table-catalog";
 import { ProviderKeysProvider, useProviderKeys } from "@/components/chat/provider-keys";
+import { ModelAttributionRecorder, ModelSelectionProvider, useModelSelection } from "@/components/chat/model-selection";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { PostHogAnalytics } from "./posthog-analytics";
 
@@ -24,14 +26,18 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider>
       <PostHogAnalytics />
       <ProviderKeysProvider>
-        <ChatProviders>{children}</ChatProviders>
+        <ModelSelectionProvider>
+          <ChatProviders>{children}</ChatProviders>
+        </ModelSelectionProvider>
       </ProviderKeysProvider>
     </ThemeProvider>
   );
 }
 
 function ChatProviders({ children }: { children: React.ReactNode }) {
-  const { headers, session } = useProviderKeys();
+  const { headers: keyHeaders, session } = useProviderKeys();
+  const { headers: modelHeaders } = useModelSelection();
+  const headers = useMemo(() => ({ ...modelHeaders, ...keyHeaders }), [modelHeaders, keyHeaders]);
   return (
     <CopilotKit
       key={session}
@@ -45,6 +51,7 @@ function ChatProviders({ children }: { children: React.ReactNode }) {
     >
       <CopilotChatConfigurationProvider>
         <OpenGenUIPromptBridge />
+        <ModelAttributionRecorder />
         {children}
       </CopilotChatConfigurationProvider>
     </CopilotKit>

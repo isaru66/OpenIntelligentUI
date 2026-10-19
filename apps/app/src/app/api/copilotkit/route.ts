@@ -5,6 +5,7 @@ import {
 } from "@copilotkit/runtime";
 import { NextRequest, after } from "next/server";
 import { readProviderHeaders, PROVIDER_KEY_INPUT_ERROR } from "@/lib/provider-keys";
+import { readModelHeaders } from "@/lib/model-headers";
 import { buildRuntimeOptions } from "@/lib/copilotkit-runtime-options";
 import { getLaunchTelemetry, observeRunResult, runtimeMethod } from "@/lib/launch-telemetry";
 
@@ -54,6 +55,7 @@ export const POST = async (req: NextRequest) => {
     langgraphUrl: process.env.LANGGRAPH_DEPLOYMENT_URL,
     mcpServerUrl: process.env.MCP_SERVER_URL,
     providerHeaders,
+    modelHeaders: readModelHeaders(req.headers),
   });
 
   // Install counting (docs/telemetry.md). Only the first run's request body is inspected.

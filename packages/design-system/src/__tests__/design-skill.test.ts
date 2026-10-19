@@ -23,3 +23,13 @@ describe("OPEN_GEN_UI_DESIGN_SKILL", () => {
     expect(OPEN_GEN_UI_DESIGN_SKILL.toLowerCase()).not.toContain("shadcn");
   });
 });
+
+import { OPEN_GEN_UI_DESIGN_SKILL as NITRO_SKILL } from "../index.js";
+
+describe("nitro design skill", () => {
+  it("documents the nitro theme and theme-aware JS colors", () => {
+    expect(NITRO_SKILL).toContain("nitro");
+    expect(NITRO_SKILL).toContain("getComputedStyle");
+    expect(NITRO_SKILL).toContain("dataset.theme");
+  });
+});

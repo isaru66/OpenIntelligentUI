@@ -5,57 +5,63 @@
 // An explicit data-theme attribute on <html> ("light" | "dark") wins over the
 // OS prefers-color-scheme so embedded UI follows the host app's theme.
 const DARK_TOKENS = `    color-scheme: dark;
-    --color-background-primary: #1a1a18;
-    --color-background-secondary: #2c2c2a;
-    --color-background-tertiary: #222220;
-    --color-background-info: #0C447C;
+    --color-background-primary: #1F1F1F;
+    --color-background-secondary: #252629;
+    --color-background-tertiary: #2E2E2E;
+    --color-background-info: #0B2A66;
     --color-background-danger: #501313;
     --color-background-success: #173404;
     --color-background-warning: #412402;
+    --color-background-accent: #0F5FFE;
 
-    --color-text-primary: #e8e6de;
-    --color-text-secondary: #9c9a92;
-    --color-text-tertiary: #73726c;
-    --color-text-info: #85B7EB;
+    --color-text-primary: #F5F5F5;
+    --color-text-secondary: #A0A6B2;
+    --color-text-tertiary: #7C8290;
+    --color-text-info: #6C9CFF;
     --color-text-danger: #F09595;
     --color-text-success: #97C459;
     --color-text-warning: #EF9F27;
 
-    --color-border-primary: rgba(255, 255, 255, 0.4);
-    --color-border-secondary: rgba(255, 255, 255, 0.3);
-    --color-border-tertiary: rgba(255, 255, 255, 0.15);
-    --color-border-info: #85B7EB;
+    --color-border-primary: #414347;
+    --color-border-secondary: #414347;
+    --color-border-tertiary: #2E2E2E;
+    --color-border-control: #5A5D63;
+    --color-border-info: #6C9CFF;
     --color-border-danger: #F09595;
     --color-border-success: #97C459;
-    --color-border-warning: #EF9F27;`;
+    --color-border-warning: #EF9F27;
+    --color-accent: #0F5FFE;`;
 
 export const THEME_CSS = `
 :root {
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f7f6f3;
-  --color-background-tertiary: #efeee9;
-  --color-background-info: #E6F1FB;
+  --color-background-primary: #FFFFFF;
+  --color-background-secondary: #F5F5F5;
+  --color-background-tertiary: #F2F3F0;
+  --color-background-info: #E6EEFF;
   --color-background-danger: #FCEBEB;
   --color-background-success: #EAF3DE;
   --color-background-warning: #FAEEDA;
+  --color-background-accent: #0F5FFE;
 
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #73726c;
-  --color-text-tertiary: #9c9a92;
-  --color-text-info: #185FA5;
+  --color-text-primary: #333333;
+  --color-text-secondary: #5B5F66;
+  --color-text-tertiary: #7C8290;
+  --color-text-info: #0F5FFE;
   --color-text-danger: #A32D2D;
   --color-text-success: #3B6D11;
   --color-text-warning: #854F0B;
 
-  --color-border-primary: rgba(0, 0, 0, 0.4);
-  --color-border-secondary: rgba(0, 0, 0, 0.3);
-  --color-border-tertiary: rgba(0, 0, 0, 0.15);
-  --color-border-info: #185FA5;
+  --color-border-primary: #9DA4B3;
+  --color-border-secondary: #E1E2E5;
+  --color-border-tertiary: #E1E2E5;
+  --color-border-control: #9DA4B3;
+  --color-border-info: #0F5FFE;
   --color-border-danger: #A32D2D;
   --color-border-success: #3B6D11;
   --color-border-warning: #854F0B;
+  --color-accent: #0F5FFE;
 
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: Georgia, "Times New Roman", serif;
   --font-mono: "SF Mono", "Fira Code", "Fira Mono", monospace;
 
@@ -151,9 +157,9 @@ svg .c-red text.ts { fill: #A32D2D; }
 
 /* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
-  svg text.t   { fill: #e8e6de; }
-  svg text.ts  { fill: #9c9a92; }
-  svg text.th  { fill: #e8e6de; }
+  svg text.t   { fill: #F5F5F5; }
+  svg text.ts  { fill: #A0A6B2; }
+  svg text.th  { fill: #F5F5F5; }
 
   svg .c-purple > rect, svg .c-purple > circle, svg .c-purple > ellipse,
   svg rect.c-purple, svg circle.c-purple, svg ellipse.c-purple { fill: #3C3489; stroke: #AFA9EC; }
@@ -247,8 +253,8 @@ select {
 input:hover, textarea:hover, select:hover { border-color: var(--color-border-secondary); }
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: var(--color-border-primary);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(15, 95, 254, 0.2);
 }
 textarea { height: auto; min-height: 80px; resize: vertical; }
 input::placeholder, textarea::placeholder { color: var(--color-text-tertiary); }
@@ -279,9 +285,9 @@ input[type="range"]::-moz-range-thumb {
 }
 input[type="checkbox"], input[type="radio"] {
   width: 16px; height: 16px;
-  accent-color: var(--color-text-info);
+  accent-color: var(--color-accent);
 }
-a { color: var(--color-text-info); text-decoration: none; }
+a { color: var(--color-accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 #content > * {
   animation: fadeSlideIn 0.4s ease-out both;
@@ -371,8 +377,8 @@ select {
 input:hover, textarea:hover, select:hover { border-color: var(--color-border-secondary); }
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: var(--color-border-primary);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(15, 95, 254, 0.2);
 }
 textarea { height: auto; min-height: 80px; resize: vertical; }
 input::placeholder, textarea::placeholder { color: var(--color-text-tertiary); }
@@ -405,10 +411,10 @@ input[type="range"]::-moz-range-thumb {
 
 input[type="checkbox"], input[type="radio"] {
   width: 16px; height: 16px;
-  accent-color: var(--color-text-info);
+  accent-color: var(--color-accent);
 }
 
-a { color: var(--color-text-info); text-decoration: none; }
+a { color: var(--color-accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 /* First render: stagger all children */
@@ -447,8 +453,10 @@ export const OPEN_GEN_UI_DESIGN_SKILL = `
 The sandbox already includes the OpenIntelligentUI design system. Build on it instead of restyling from scratch.
 
 Colors and theming:
-- Use the CSS variables for every color: --color-background-primary / --color-background-secondary / --color-background-tertiary, --color-text-primary / --color-text-secondary / --color-text-tertiary, plus the semantic info/danger/success/warning variants (--color-background-info, --color-text-danger, --color-border-success, etc.).
+- The sandbox uses the "nitro" theme (Roboto, blue #0F5FFE accent). It automatically matches light/dark mode.
+- Use the CSS variables for every color: --color-background-primary / --color-background-secondary / --color-background-tertiary, --color-text-primary / --color-text-secondary / --color-text-tertiary, --color-accent, --color-border-control, plus the semantic info/danger/success/warning variants (--color-background-info, --color-text-danger, --color-border-success, etc.).
 - Dark mode is automatic via these variables — NEVER hardcode hex values for text or backgrounds.
+- Colors read from JavaScript (canvas, three.js, charts) must come from getComputedStyle(document.documentElement).getPropertyValue('--color-...') and re-read when document.documentElement.dataset.theme changes (observe it with a MutationObserver on the data-theme attribute).
 - Fonts: --font-sans, --font-serif, --font-mono. Radii: --border-radius-md, --border-radius-lg, --border-radius-xl.
 
 Form controls:

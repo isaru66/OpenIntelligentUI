@@ -2,8 +2,9 @@
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--surface-primary);
-  color: var(--text-primary);
+  background: var(--nitro-canvas);
+  color: var(--nitro-text);
+  font-family: var(--font-family);
 }
 .chat-header {
   height: 76px;
@@ -12,39 +13,72 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 0 32px;
-  border-bottom: 1px solid var(--border-default);
+  padding: 0 40px;
+  background: var(--nitro-surface);
+  border-bottom: 1px solid var(--nitro-divider);
 }
 .chat-name {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
 }
 .chat-header nav {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 28px;
 }
 .chat-header nav > a,
-.chat-header button {
-  font-size: 12px;
+.chat-header nav > button {
+  font-size: 14px;
+  color: var(--nitro-muted);
   text-decoration: none;
   cursor: pointer;
+  white-space: nowrap;
 }
-.chat-brand {
-  padding: 14px;
-  background: white;
+.chat-header nav > a:hover,
+.chat-header nav > button:hover:not(:disabled) {
+  color: var(--nitro-text);
+}
+.chat-header nav > button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--nitro-surface-2);
   border-radius: 8px;
 }
-.chat-brand img {
-  width: 125px;
-  height: 28px;
-  object-fit: contain;
+.theme-switcher button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--nitro-muted);
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+}
+.theme-switcher button[aria-pressed="true"] {
+  background: var(--nitro-surface);
+  color: var(--nitro-accent);
+  font-weight: 600;
+  box-shadow: var(--nitro-switch-shadow);
+}
+.theme-switcher svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 .chat-main {
   display: flex;
   flex-direction: column;
-  width: min(100%, 1040px);
+  width: min(100%, 880px);
   flex: 1;
   min-height: 0;
   margin: 0 auto;
@@ -55,8 +89,8 @@
   min-height: 0;
 }
 .chat-app :focus-visible {
-  outline: 2px solid #189370;
-  outline-offset: 4px;
+  outline: 2px solid var(--nitro-accent);
+  outline-offset: 3px;
 }
 .chat-error {
   background: #ffac4d20;
@@ -79,7 +113,7 @@
   position: fixed;
   top: -60px;
   left: 20px;
-  background: var(--surface-primary);
+  background: var(--nitro-surface);
   padding: 10px 20px;
   z-index: 100;
 }
@@ -87,29 +121,95 @@
   top: 10px;
 }
 .chat-content [data-testid="copilot-welcome-screen"] h1 {
-  font-weight: 500;
+  font-size: 42px;
+  font-weight: 700;
   letter-spacing: -1px;
+  color: var(--nitro-text-strong);
+}
+.chat-content [data-testid="copilot-welcome-screen"] {
+  color: var(--nitro-muted);
+}
+.chat-content [data-testid="copilot-welcome-screen"] [data-testid="copilot-chat-input"],
+.chat-content [data-testid="copilot-chat-input"] {
+  background: var(--nitro-surface);
+  border: 1px solid var(--nitro-control);
+  border-radius: 12px;
+  box-shadow: var(--nitro-prompt-shadow);
+}
+.chat-content [data-testid="copilot-welcome-screen"] [data-testid="copilot-chat-input"] {
+  max-width: 720px;
+  margin-inline: auto;
+}
+/* Prompt text on its own row above the model selectors and send button */
+.chat-content [data-testid="copilot-chat-input"] > div {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-rows: auto auto !important;
+  row-gap: 4px !important;
+  padding: 12px 16px !important;
+}
+.chat-content [data-testid="copilot-chat-input"] > div > div:nth-child(2) {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+}
+.chat-content [data-testid="copilot-chat-input"] > div > div:nth-child(1) {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  min-width: 0;
+}
+.chat-content [data-testid="copilot-chat-input"] > div > div:nth-child(3) {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+}
+.chat-content [data-testid="copilot-suggestion"] {
+  background: var(--nitro-surface);
+  color: var(--nitro-text);
+  border: 1px solid var(--nitro-divider);
+  border-radius: 8px;
+}
+.chat-content [data-testid="copilot-user-message"] [class*="bg-muted"] {
+  background: var(--nitro-surface-2);
+  color: var(--nitro-text);
+  border-radius: 16px 16px 4px 16px;
+}
+.chat-content [data-testid="copilot-assistant-message"] {
+  color: var(--nitro-text);
+}
+@media (max-width: 860px) {
+  .chat-header {
+    padding: 0 20px;
+  }
+  .chat-header nav {
+    gap: 16px;
+  }
+  .chat-header nav > .chat-nav-extra {
+    display: none;
+  }
 }
 @media (max-width: 640px) {
   .chat-header {
-    height: 64px;
-    padding: 0 18px;
-    gap: 12px;
+    height: auto;
+    min-height: 64px;
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .chat-name {
     font-size: 14px;
   }
   .chat-header nav {
-    gap: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
   }
-  .chat-brand {
+  .theme-switcher button {
+    padding: 8px;
+  }
+  .theme-switcher button span {
     display: none;
   }
   .chat-main {
     padding: 8px 10px 0;
   }
 }
-
 .answer-table {
   margin: 1rem 0;
   border: 1px solid var(--color-border, #d8d8d8);

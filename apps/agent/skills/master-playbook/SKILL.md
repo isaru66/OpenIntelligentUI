@@ -42,7 +42,11 @@ For generateSandboxedUi, emit these parameters in this EXACT order:
 
 The sandbox has no same-origin access: no localStorage, sessionStorage, cookies,
 IndexedDB, or same-origin fetch. No parent DOM access. Theme variables, form styles,
-and SVG color classes are pre-injected. An importmap supports three, gsap, d3,
+and SVG color classes are pre-injected. They implement the "nitro" theme (Roboto, blue
+--color-accent) and match the active light/dark mode: use the CSS variables, never hardcoded
+text/background colors. Colors read from JavaScript (canvas, three.js, charts) should use
+getComputedStyle(document.documentElement) and re-read when
+document.documentElement.dataset.theme changes. An importmap supports three, gsap, d3,
 and chart.js. jsFunctions and jsExpressions are classic scripts: top-level await
 is invalid. Dynamic imports belong inside an async function; catch failures.
 The advanced skill covers libraries and responsive rendering.

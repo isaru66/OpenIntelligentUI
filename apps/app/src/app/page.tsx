@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ProviderKeysDialog } from "@/components/chat/provider-keys-dialog";
 import { useProviderKeys } from "@/components/chat/provider-keys";
 import { KeyGatedChatView } from "@/components/chat/key-gated-chat-view";
-import Image from "next/image";
+import { ThemeSwitcher } from "@/components/chat/theme-switcher";
 import { ReaderScrollView } from "@/components/chat/reader-scroll-view";
 import { AnswerMarkdown } from "@/components/chat/answer-markdown";
 import {
@@ -96,20 +96,7 @@ export default function HomePage() {
           >
             GitHub ↗
           </a>
-          <a
-            className="chat-brand"
-            href="https://copilotkit.ai"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              src="/copilotkit-logo.svg"
-              alt="CopilotKit"
-              width={125}
-              height={28}
-              priority
-            />
-          </a>
+          <ThemeSwitcher />
         </nav>
       </header>
       {keysOpen && <ProviderKeysDialog onClose={() => setKeysOpen(false)} disabled={agent.isRunning || retrying} />}

@@ -1,5 +1,6 @@
 import { LangGraphHttpAgent } from "@copilotkit/runtime/langgraph";
 
+import type { ModelHeaders } from "./model-headers";
 import type { ProviderHeaders } from "./provider-keys";
 
 class CredentialSafeLangGraphAgent extends LangGraphHttpAgent {
@@ -13,6 +14,7 @@ export interface RuntimeOptionsEnv {
   langgraphUrl?: string;
   mcpServerUrl?: string;
   providerHeaders?: ProviderHeaders;
+  modelHeaders?: ModelHeaders;
 }
 
 // Normalize Render's fromService hostport (bare host:port) into a full URL
@@ -26,7 +28,9 @@ export function buildRuntimeOptions(env: RuntimeOptionsEnv) {
     agents: {
       default: new CredentialSafeLangGraphAgent({
         url: normalizeLanggraphUrl(env.langgraphUrl),
-        ...(env.providerHeaders && { headers: env.providerHeaders }),
+        ...((env.providerHeaders || (env.modelHeaders && Object.keys(env.modelHeaders).length > 0)) && {
+          headers: { ...env.modelHeaders, ...env.providerHeaders },
+        }),
       }),
     },
     a2ui: { injectA2UITool: true },

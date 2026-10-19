@@ -59,7 +59,7 @@ export function resolveFrameTheme(): FrameTheme {
 }
 
 export function buildThemeScript(theme: FrameTheme): string {
-  return `document.documentElement.setAttribute("data-theme", ${JSON.stringify(theme)});`;
+  return `document.documentElement.setAttribute("data-theme", ${JSON.stringify(theme)});document.documentElement.setAttribute("data-theme-name", "nitro");`;
 }
 
 export function buildFinalFrameContent(

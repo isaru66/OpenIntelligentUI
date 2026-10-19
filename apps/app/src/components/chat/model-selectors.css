@@ -1,0 +1,41 @@
+.model-selectors { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.model-dropdown { position: relative; display: inline-flex; flex-direction: column; }
+.model-dropdown__label {
+  position: absolute; left: 4px; bottom: calc(100% + 2px); padding: 1px 6px; border-radius: 6px;
+  font-size: 11px; font-weight: 500; line-height: 1.4; white-space: nowrap; pointer-events: none;
+  color: var(--nitro-muted); background: var(--nitro-surface);
+  opacity: 0; transition: opacity 120ms ease;
+}
+.model-dropdown:hover .model-dropdown__label,
+.model-dropdown:focus-within .model-dropdown__label,
+.model-dropdown[data-open] .model-dropdown__label { opacity: 1; }
+.model-dropdown__button {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 0; border-radius: 6px;
+  background: transparent; color: var(--nitro-text); font: 500 13px/normal Roboto, system-ui, sans-serif;
+  white-space: nowrap; cursor: pointer;
+}
+.model-dropdown__button:hover, .model-dropdown[data-open] .model-dropdown__button { background: var(--nitro-surface-2); }
+.model-dropdown__button:disabled { opacity: .45; cursor: not-allowed; }
+.model-dropdown__button:focus-visible, .model-dropdown__menu:focus-visible { outline: 2px solid var(--nitro-accent); outline-offset: 2px; }
+.model-dropdown__button > svg:last-child { color: var(--nitro-muted); }
+.model-dropdown__icon { display: inline-flex; color: var(--nitro-accent); }
+.model-dropdown__menu {
+  position: absolute; z-index: 30; left: 0; bottom: calc(100% + 8px); box-sizing: border-box;
+  width: 260px; max-width: calc(100vw - 32px); margin: 0; padding: 6px; list-style: none;
+  background: var(--nitro-surface); border: 1px solid var(--nitro-divider); border-radius: 12px;
+  box-shadow: 0 8px 24px #00000026;
+}
+.model-dropdown__option {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  color: var(--nitro-text); font: 500 13px/normal Roboto, system-ui, sans-serif;
+}
+.model-dropdown__option[data-active], .model-dropdown__option:hover { background: var(--nitro-surface-2); }
+.model-dropdown__option-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.model-dropdown__check { display: inline-flex; color: var(--nitro-accent); }
+.model-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+.model-chip {
+  padding: 2px 8px; border-radius: 999px; background: var(--nitro-chip-bg); color: var(--nitro-chip-text);
+  font: 500 12px/1.5 Roboto, system-ui, sans-serif;
+}
+@media (max-width: 600px) { .model-dropdown__menu { position: fixed; left: 16px; right: 16px; bottom: 96px; width: auto; max-width: none; } }
+@media (prefers-reduced-motion: reduce) { .model-dropdown__label { transition: none; } }

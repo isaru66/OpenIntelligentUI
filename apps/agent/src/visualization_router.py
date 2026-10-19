@@ -121,10 +121,22 @@ def routing_input(state):
     return turn, context
 
 
+def jev_selected() -> bool:
+    """The Jev choice uses the TYPESAFE route only when its key exists; otherwise the default applies."""
+    from src.credentials import current_credentials
+    from src.selection import current_selection
+
+    return (
+        current_credentials.get() is None
+        and current_selection.get().decision_model == "Jev"
+        and bool(os.environ.get("TYPESAFE_API_KEY", "").strip())
+    )
+
+
 def get_router_url() -> str:
     from src.credentials import current_credentials
 
-    if current_credentials.get() is not None or not is_azure_foundry_enabled():
+    if current_credentials.get() is not None or not is_azure_foundry_enabled() or jev_selected():
         return LEGACY_JEV_URL
     return get_decision_endpoint()
 
@@ -139,7 +151,7 @@ def request_options(context):
     if credentials:
         headers = {"Authorization": f"Bearer {credentials.jev}"}
         model = "jev-latest"
-    elif is_azure_foundry_enabled():
+    elif is_azure_foundry_enabled() and not jev_selected():
         token = get_azure_bearer_token()
         headers = {"Authorization": f"Bearer {token}"}
         model = (
