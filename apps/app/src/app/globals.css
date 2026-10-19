@@ -167,9 +167,15 @@ body {
   font-family: var(--font-family);
   background: var(--background);
   color: var(--foreground);
+  caret-color: var(--nitro-accent);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #0F5FFE26;
+  color: var(--nitro-text-strong);
 }
 
 body, html {
@@ -702,8 +708,9 @@ body, html {
 /* === Nitro theme (host) === */
 :root,
 :root.light {
-  --nitro-canvas: #F5F5F5;
+  --nitro-canvas: #FFFFFF;
   --nitro-surface: #FFFFFF;
+  --nitro-surface-subtle: #F7F8FA;
   --nitro-surface-2: #F2F3F0;
   --nitro-text: #333333;
   --nitro-text-strong: #111111;
@@ -711,7 +718,7 @@ body, html {
   --nitro-accent: #0F5FFE;
   --nitro-divider: #E1E2E5;
   --nitro-control: #9DA4B3;
-  --nitro-prompt-shadow: 0px 8px 24px #0F5FFE14;
+  --nitro-prompt-shadow: 0px 8px 16px -4px #0F5FFE14, 0px 2px 6px -1px #0000000d;
   --nitro-switch-shadow: 0px 1px 2px #0000001a;
   --nitro-chip-bg: #E8F0FE;
   --nitro-chip-text: #0F5FFE;
@@ -719,7 +726,7 @@ body, html {
   --background: var(--nitro-canvas);
   --foreground: var(--nitro-text);
   --surface-primary: var(--nitro-surface);
-  --surface-secondary: var(--nitro-canvas);
+  --surface-secondary: var(--nitro-surface-subtle);
   --surface-tertiary: var(--nitro-surface-2);
   --surface-quaternary: var(--nitro-surface-2);
   --surface-btn: var(--nitro-surface);
@@ -729,15 +736,21 @@ body, html {
   --text-secondary: var(--nitro-muted);
   --border-default: var(--nitro-divider);
   --border-hover: var(--nitro-control);
+  --color-background-secondary: #F5F5F5;
+  --color-background-tertiary: var(--nitro-surface-2);
   --color-text-primary: var(--nitro-text);
   --color-text-secondary: var(--nitro-muted);
   --color-border: var(--nitro-divider);
+  --color-border-secondary: var(--nitro-divider);
+  --color-border-tertiary: var(--nitro-divider);
+  --color-border-glass: var(--nitro-divider);
   --copilot-kit-primary-color: var(--nitro-accent);
 }
 
 :root.dark {
   --nitro-canvas: #252629;
   --nitro-surface: #1F1F1F;
+  --nitro-surface-subtle: #2A2B2E;
   --nitro-surface-2: #2E2E2E;
   --nitro-text: #F5F5F5;
   --nitro-text-strong: #F5F5F5;
@@ -753,7 +766,7 @@ body, html {
   --background: var(--nitro-canvas);
   --foreground: var(--nitro-text);
   --surface-primary: var(--nitro-surface);
-  --surface-secondary: var(--nitro-canvas);
+  --surface-secondary: var(--nitro-surface-subtle);
   --surface-tertiary: var(--nitro-surface-2);
   --surface-quaternary: var(--nitro-surface-2);
   --surface-btn: var(--nitro-surface-2);
@@ -763,7 +776,12 @@ body, html {
   --text-secondary: var(--nitro-muted);
   --border-default: var(--nitro-divider);
   --border-hover: var(--nitro-control);
+  --color-background-secondary: #252629;
+  --color-background-tertiary: var(--nitro-surface-2);
   --color-text-primary: var(--nitro-text);
   --color-text-secondary: var(--nitro-muted);
   --color-border: var(--nitro-divider);
+  --color-border-secondary: var(--nitro-divider);
+  --color-border-tertiary: var(--nitro-divider);
+  --color-border-glass: var(--nitro-divider);
 }

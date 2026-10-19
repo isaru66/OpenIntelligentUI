@@ -44,9 +44,15 @@ The sandbox has no same-origin access: no localStorage, sessionStorage, cookies,
 IndexedDB, or same-origin fetch. No parent DOM access. Theme variables, form styles,
 and SVG color classes are pre-injected. They implement the "nitro" theme (Roboto, blue
 --color-accent) and match the active light/dark mode: use the CSS variables, never hardcoded
-text/background colors. Colors read from JavaScript (canvas, three.js, charts) should use
-getComputedStyle(document.documentElement) and re-read when
-document.documentElement.dataset.theme changes. An importmap supports three, gsap, d3,
+text/background colors. The host page background in Light mode is pure white (#FFFFFF) and the
+iframe background is transparent. Top-level cards, panels, metric tiles, and chart containers
+should use var(--color-background-secondary) (or var(--color-background-primary) with 1px solid
+var(--color-border-secondary)) so they stand out cleanly against the white canvas in Light mode
+and the dark canvas in Dark mode. Inner controls and nested wells inside a secondary card should
+use var(--color-background-primary) or var(--color-background-tertiary) with
+var(--color-border-control) / var(--color-border-secondary). Colors read from JavaScript
+(canvas, Chart.js, D3, Three.js) must use getComputedStyle(document.documentElement) and re-read
+when document.documentElement.dataset.theme changes. An importmap supports three, gsap, d3,
 and chart.js. jsFunctions and jsExpressions are classic scripts: top-level await
 is invalid. Dynamic imports belong inside an async function; catch failures.
 The advanced skill covers libraries and responsive rendering.

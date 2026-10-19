@@ -1,8 +1,11 @@
 """Jev selects presentation; the chat model supplies the answer and UI content."""
 
+import asyncio
 import hashlib
 import json
+import logging
 import os
+import time
 from typing import NotRequired
 
 import httpx
@@ -17,7 +20,12 @@ from src.azure_auth import (
     is_azure_foundry_enabled,
 )
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_DECISION_MODEL = "Decision-1"
+MAX_ROUTER_RETRIES = 3
+ROUTER_RETRY_DELAYS = (2.0, 4.0, 8.0)
+RETRYABLE_ROUTER_STATUS_CODES = frozenset({408, 409, 429, 500, 502, 503, 504, 529})
 JEV_URL = "https://ai-isarar-2855.services.ai.azure.com/providers/microsoft/v1/systemone"
 LEGACY_JEV_URL = "https://api.typesafe.ai/v1/systemone"
 VISUALIZATIONS = {
@@ -204,27 +212,79 @@ def provider_trust_env():
 
 
 def route(context):
-    try:
-        with httpx.Client(timeout=15, trust_env=provider_trust_env()) as client:
-            return parse_response(
-                client.post(get_router_url(), **request_options(context))
-            )
-    except httpx.HTTPError:
-        raise ValueError(
-            "Jev visualization routing is unavailable or timed out. Please retry."
-        ) from None
+    with httpx.Client(timeout=15, trust_env=provider_trust_env()) as client:
+        for attempt in range(MAX_ROUTER_RETRIES + 1):
+            try:
+                response = client.post(get_router_url(), **request_options(context))
+            except httpx.HTTPError as exc:
+                if attempt < MAX_ROUTER_RETRIES:
+                    delay = ROUTER_RETRY_DELAYS[attempt]
+                    logger.warning(
+                        "Decision router request failed (%s); retrying (%d/%d) in %.1fs",
+                        exc,
+                        attempt + 1,
+                        MAX_ROUTER_RETRIES,
+                        delay,
+                    )
+                    time.sleep(delay)
+                    continue
+                raise ValueError(
+                    "Jev visualization routing is unavailable or timed out. Please retry."
+                ) from None
+            if (
+                response.status_code in RETRYABLE_ROUTER_STATUS_CODES
+                and attempt < MAX_ROUTER_RETRIES
+            ):
+                delay = ROUTER_RETRY_DELAYS[attempt]
+                logger.warning(
+                    "Decision router returned HTTP %d; retrying (%d/%d) in %.1fs",
+                    response.status_code,
+                    attempt + 1,
+                    MAX_ROUTER_RETRIES,
+                    delay,
+                )
+                time.sleep(delay)
+                continue
+            return parse_response(response)
 
 
 async def aroute(context):
-    try:
-        async with httpx.AsyncClient(timeout=15, trust_env=provider_trust_env()) as client:
-            return parse_response(
-                await client.post(get_router_url(), **request_options(context))
-            )
-    except httpx.HTTPError:
-        raise ValueError(
-            "Jev visualization routing is unavailable or timed out. Please retry."
-        ) from None
+    async with httpx.AsyncClient(timeout=15, trust_env=provider_trust_env()) as client:
+        for attempt in range(MAX_ROUTER_RETRIES + 1):
+            try:
+                response = await client.post(
+                    get_router_url(), **request_options(context)
+                )
+            except httpx.HTTPError as exc:
+                if attempt < MAX_ROUTER_RETRIES:
+                    delay = ROUTER_RETRY_DELAYS[attempt]
+                    logger.warning(
+                        "Decision router async request failed (%s); retrying (%d/%d) in %.1fs",
+                        exc,
+                        attempt + 1,
+                        MAX_ROUTER_RETRIES,
+                        delay,
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+                raise ValueError(
+                    "Jev visualization routing is unavailable or timed out. Please retry."
+                ) from None
+            if (
+                response.status_code in RETRYABLE_ROUTER_STATUS_CODES
+                and attempt < MAX_ROUTER_RETRIES
+            ):
+                delay = ROUTER_RETRY_DELAYS[attempt]
+                logger.warning(
+                    "Decision router returned HTTP %d; retrying (%d/%d) in %.1fs",
+                    response.status_code,
+                    attempt + 1,
+                    MAX_ROUTER_RETRIES,
+                    delay,
+                )
+                await asyncio.sleep(delay)
+                continue
+            return parse_response(response)
 
 
 def routed_request(request):

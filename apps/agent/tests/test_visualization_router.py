@@ -175,6 +175,8 @@ def test_timeout_is_actionable_without_secret_headers(monkeypatch):
 
     monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
     monkeypatch.setenv("TYPESAFE_API_KEY", "private-test-value")
+    sleeps: list[float] = []
+    monkeypatch.setattr(router.time, "sleep", lambda d: sleeps.append(d))
 
     def timeout(*args, **kwargs):
         raise httpx.ReadTimeout("private-test-value")
@@ -183,6 +185,80 @@ def test_timeout_is_actionable_without_secret_headers(monkeypatch):
     with pytest.raises(ValueError, match="timed out") as error:
         router.route([])
     assert "private-test-value" not in str(error.value)
+    assert sleeps == [2.0, 4.0, 8.0]
+
+
+def test_router_retries_rate_limit_and_recovers_with_exponential_backoff(monkeypatch):
+    import asyncio
+    import httpx
+    import src.visualization_router as router
+
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+
+    sync_sleeps: list[float] = []
+    async_sleeps: list[float] = []
+    monkeypatch.setattr(router.time, "sleep", lambda d: sync_sleeps.append(d))
+
+    async def fake_async_sleep(delay: float):
+        async_sleeps.append(delay)
+
+    monkeypatch.setattr(router.asyncio, "sleep", fake_async_sleep)
+
+    sync_attempts = 0
+
+    def sync_post(self, url, **kwargs):
+        nonlocal sync_attempts
+        sync_attempts += 1
+        if sync_attempts <= 3:
+            return httpx.Response(429, text="rate limited")
+        return httpx.Response(200, json=response("bar_chart"))
+
+    monkeypatch.setattr(httpx.Client, "post", sync_post)
+    result = router.route([{"role": "human", "content": "chart"}])
+    assert result["visualization"] == "bar_chart"
+    assert sync_attempts == 4
+    assert sync_sleeps == [2.0, 4.0, 8.0]
+
+    async_attempts = 0
+
+    async def async_post(self, url, **kwargs):
+        nonlocal async_attempts
+        async_attempts += 1
+        if async_attempts == 1:
+            raise httpx.ConnectError("transient network error")
+        if async_attempts <= 3:
+            return httpx.Response(503, text="overloaded")
+        return httpx.Response(200, json=response("table"))
+
+    monkeypatch.setattr(httpx.AsyncClient, "post", async_post)
+    async_result = asyncio.run(router.aroute([{"role": "human", "content": "table"}]))
+    assert async_result["visualization"] == "table"
+    assert async_attempts == 4
+    assert async_sleeps == [2.0, 4.0, 8.0]
+
+
+def test_router_does_not_retry_non_retryable_401(monkeypatch):
+    import httpx
+    import src.visualization_router as router
+
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    sleeps: list[float] = []
+    monkeypatch.setattr(router.time, "sleep", lambda d: sleeps.append(d))
+
+    attempts = 0
+
+    def post_401(self, url, **kwargs):
+        nonlocal attempts
+        attempts += 1
+        return httpx.Response(401, text="unauthorized")
+
+    monkeypatch.setattr(httpx.Client, "post", post_401)
+    with pytest.raises(ValueError, match="HTTP 401"):
+        router.route([])
+    assert attempts == 1
+    assert sleeps == []
 
 
 def test_context_excludes_system_and_tool_content_and_is_bounded():

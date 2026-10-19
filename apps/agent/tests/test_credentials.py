@@ -384,6 +384,7 @@ def test_byok_clients_ignore_server_openai_environment(monkeypatch):
 
 
 def test_byok_validation_and_jev_ignore_proxy_environment(monkeypatch):
+    import src.visualization_router as router
     from src.credentials import Credentials, current_credentials, validate_credentials
     from src.visualization_router import route, aroute
     observed = []
@@ -392,8 +393,12 @@ def test_byok_validation_and_jev_ignore_proxy_environment(monkeypatch):
         return httpx.Response(503)
     async def apost(self, url, **kwargs):
         return post(self, url, **kwargs)
+    async def no_async_sleep(_delay):
+        pass
     monkeypatch.setattr(httpx.Client, 'post', post)
     monkeypatch.setattr(httpx.AsyncClient, 'post', apost)
+    monkeypatch.setattr(router.time, 'sleep', lambda _delay: None)
+    monkeypatch.setattr(router.asyncio, 'sleep', no_async_sleep)
     creds = Credentials('visitor', 'jev')
     asyncio.run(validate_credentials(creds))
     token = current_credentials.set(creds)
@@ -404,4 +409,4 @@ def test_byok_validation_and_jev_ignore_proxy_environment(monkeypatch):
             asyncio.run(aroute([]))
     finally:
         current_credentials.reset(token)
-    assert observed == [False, False, False, False]
+    assert observed == [False] * 10

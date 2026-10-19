@@ -36,7 +36,7 @@ export const THEME_CSS = `
 :root {
   --color-background-primary: #FFFFFF;
   --color-background-secondary: #F5F5F5;
-  --color-background-tertiary: #F2F3F0;
+  --color-background-tertiary: #EAECEF;
   --color-background-info: #E6EEFF;
   --color-background-danger: #FCEBEB;
   --color-background-success: #EAF3DE;
@@ -52,7 +52,7 @@ export const THEME_CSS = `
   --color-text-warning: #854F0B;
 
   --color-border-primary: #9DA4B3;
-  --color-border-secondary: #E1E2E5;
+  --color-border-secondary: #D5D8DF;
   --color-border-tertiary: #E1E2E5;
   --color-border-control: #9DA4B3;
   --color-border-info: #0F5FFE;
@@ -88,6 +88,60 @@ ${DARK_TOKENS}
 ${DARK_TOKENS}
 }
 `;
+
+const DARK_SVG_RULES = `
+  svg text.t   { fill: #F5F5F5; }
+  svg text.ts  { fill: #A0A6B2; }
+  svg text.th  { fill: #F5F5F5; }
+
+  svg .c-purple > rect, svg .c-purple > circle, svg .c-purple > ellipse,
+  svg rect.c-purple, svg circle.c-purple, svg ellipse.c-purple { fill: #3C3489; stroke: #AFA9EC; }
+  svg .c-purple text.th, svg .c-purple text.t { fill: #CECBF6; }
+  svg .c-purple text.ts { fill: #AFA9EC; }
+
+  svg .c-teal > rect, svg .c-teal > circle, svg .c-teal > ellipse,
+  svg rect.c-teal, svg circle.c-teal, svg ellipse.c-teal { fill: #085041; stroke: #5DCAA5; }
+  svg .c-teal text.th, svg .c-teal text.t { fill: #9FE1CB; }
+  svg .c-teal text.ts { fill: #5DCAA5; }
+
+  svg .c-coral > rect, svg .c-coral > circle, svg .c-coral > ellipse,
+  svg rect.c-coral, svg circle.c-coral, svg ellipse.c-coral { fill: #712B13; stroke: #F0997B; }
+  svg .c-coral text.th, svg .c-coral text.t { fill: #F5C4B3; }
+  svg .c-coral text.ts { fill: #F0997B; }
+
+  svg .c-pink > rect, svg .c-pink > circle, svg .c-pink > ellipse,
+  svg rect.c-pink, svg circle.c-pink, svg ellipse.c-pink { fill: #72243E; stroke: #ED93B1; }
+  svg .c-pink text.th, svg .c-pink text.t { fill: #F4C0D1; }
+  svg .c-pink text.ts { fill: #ED93B1; }
+
+  svg .c-gray > rect, svg .c-gray > circle, svg .c-gray > ellipse,
+  svg rect.c-gray, svg circle.c-gray, svg ellipse.c-gray { fill: #444441; stroke: #B4B2A9; }
+  svg .c-gray text.th, svg .c-gray text.t { fill: #D3D1C7; }
+  svg .c-gray text.ts { fill: #B4B2A9; }
+
+  svg .c-blue > rect, svg .c-blue > circle, svg .c-blue > ellipse,
+  svg rect.c-blue, svg circle.c-blue, svg ellipse.c-blue { fill: #0C447C; stroke: #85B7EB; }
+  svg .c-blue text.th, svg .c-blue text.t { fill: #B5D4F4; }
+  svg .c-blue text.ts { fill: #85B7EB; }
+
+  svg .c-green > rect, svg .c-green > circle, svg .c-green > ellipse,
+  svg rect.c-green, svg circle.c-green, svg ellipse.c-green { fill: #27500A; stroke: #97C459; }
+  svg .c-green text.th, svg .c-green text.t { fill: #C0DD97; }
+  svg .c-green text.ts { fill: #97C459; }
+
+  svg .c-amber > rect, svg .c-amber > circle, svg .c-amber > ellipse,
+  svg rect.c-amber, svg circle.c-amber, svg ellipse.c-amber { fill: #633806; stroke: #EF9F27; }
+  svg .c-amber text.th, svg .c-amber text.t { fill: #FAC775; }
+  svg .c-amber text.ts { fill: #EF9F27; }
+
+  svg .c-red > rect, svg .c-red > circle, svg .c-red > ellipse,
+  svg rect.c-red, svg circle.c-red, svg ellipse.c-red { fill: #791F1F; stroke: #F09595; }
+  svg .c-red text.th, svg .c-red text.t { fill: #F7C1C1; }
+  svg .c-red text.ts { fill: #F09595; }`;
+
+function scopeDarkSvgRules(rootSelector: string): string {
+  return DARK_SVG_RULES.replace(/\bsvg\b/g, `${rootSelector} svg`);
+}
 
 // ─── SVG Pre-Built Classes ───────────────────────────────────────────
 export const SVG_CLASSES_CSS = `
@@ -156,56 +210,9 @@ svg .c-red text.th, svg .c-red text.t { fill: #791F1F; }
 svg .c-red text.ts { fill: #A32D2D; }
 
 /* Dark mode overrides */
-@media (prefers-color-scheme: dark) {
-  svg text.t   { fill: #F5F5F5; }
-  svg text.ts  { fill: #A0A6B2; }
-  svg text.th  { fill: #F5F5F5; }
-
-  svg .c-purple > rect, svg .c-purple > circle, svg .c-purple > ellipse,
-  svg rect.c-purple, svg circle.c-purple, svg ellipse.c-purple { fill: #3C3489; stroke: #AFA9EC; }
-  svg .c-purple text.th, svg .c-purple text.t { fill: #CECBF6; }
-  svg .c-purple text.ts { fill: #AFA9EC; }
-
-  svg .c-teal > rect, svg .c-teal > circle, svg .c-teal > ellipse,
-  svg rect.c-teal, svg circle.c-teal, svg ellipse.c-teal { fill: #085041; stroke: #5DCAA5; }
-  svg .c-teal text.th, svg .c-teal text.t { fill: #9FE1CB; }
-  svg .c-teal text.ts { fill: #5DCAA5; }
-
-  svg .c-coral > rect, svg .c-coral > circle, svg .c-coral > ellipse,
-  svg rect.c-coral, svg circle.c-coral, svg ellipse.c-coral { fill: #712B13; stroke: #F0997B; }
-  svg .c-coral text.th, svg .c-coral text.t { fill: #F5C4B3; }
-  svg .c-coral text.ts { fill: #F0997B; }
-
-  svg .c-pink > rect, svg .c-pink > circle, svg .c-pink > ellipse,
-  svg rect.c-pink, svg circle.c-pink, svg ellipse.c-pink { fill: #72243E; stroke: #ED93B1; }
-  svg .c-pink text.th, svg .c-pink text.t { fill: #F4C0D1; }
-  svg .c-pink text.ts { fill: #ED93B1; }
-
-  svg .c-gray > rect, svg .c-gray > circle, svg .c-gray > ellipse,
-  svg rect.c-gray, svg circle.c-gray, svg ellipse.c-gray { fill: #444441; stroke: #B4B2A9; }
-  svg .c-gray text.th, svg .c-gray text.t { fill: #D3D1C7; }
-  svg .c-gray text.ts { fill: #B4B2A9; }
-
-  svg .c-blue > rect, svg .c-blue > circle, svg .c-blue > ellipse,
-  svg rect.c-blue, svg circle.c-blue, svg ellipse.c-blue { fill: #0C447C; stroke: #85B7EB; }
-  svg .c-blue text.th, svg .c-blue text.t { fill: #B5D4F4; }
-  svg .c-blue text.ts { fill: #85B7EB; }
-
-  svg .c-green > rect, svg .c-green > circle, svg .c-green > ellipse,
-  svg rect.c-green, svg circle.c-green, svg ellipse.c-green { fill: #27500A; stroke: #97C459; }
-  svg .c-green text.th, svg .c-green text.t { fill: #C0DD97; }
-  svg .c-green text.ts { fill: #97C459; }
-
-  svg .c-amber > rect, svg .c-amber > circle, svg .c-amber > ellipse,
-  svg rect.c-amber, svg circle.c-amber, svg ellipse.c-amber { fill: #633806; stroke: #EF9F27; }
-  svg .c-amber text.th, svg .c-amber text.t { fill: #FAC775; }
-  svg .c-amber text.ts { fill: #EF9F27; }
-
-  svg .c-red > rect, svg .c-red > circle, svg .c-red > ellipse,
-  svg rect.c-red, svg circle.c-red, svg ellipse.c-red { fill: #791F1F; stroke: #F09595; }
-  svg .c-red text.th, svg .c-red text.t { fill: #F7C1C1; }
-  svg .c-red text.ts { fill: #F09595; }
+@media (prefers-color-scheme: dark) {${scopeDarkSvgRules(':root:not([data-theme="light"])')}
 }
+${scopeDarkSvgRules(':root[data-theme="dark"]')}
 `;
 
 // ─── Form Element Styles (base, no entrance stagger) ─────────────────
@@ -225,7 +232,7 @@ button {
   font-family: inherit;
   font-size: 14px;
   padding: 6px 16px;
-  border: 0.5px solid var(--color-border-secondary);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--border-radius-md);
   background: transparent;
   color: var(--color-text-primary);
@@ -244,13 +251,13 @@ select {
   font-size: 14px;
   padding: 6px 12px;
   height: 36px;
-  border: 0.5px solid var(--color-border-tertiary);
+  border: 1px solid var(--color-border-control);
   border-radius: var(--border-radius-md);
   background: var(--color-background-primary);
   color: var(--color-text-primary);
   transition: border-color 0.15s;
 }
-input:hover, textarea:hover, select:hover { border-color: var(--color-border-secondary); }
+input:hover, textarea:hover, select:hover { border-color: var(--color-text-secondary); }
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--color-accent);
@@ -272,7 +279,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 18px; height: 18px;
   border-radius: 50%;
   background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-secondary);
+  border: 1px solid var(--color-border-control);
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -280,7 +287,7 @@ input[type="range"]::-moz-range-thumb {
   width: 18px; height: 18px;
   border-radius: 50%;
   background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-secondary);
+  border: 1px solid var(--color-border-control);
   cursor: pointer;
 }
 input[type="checkbox"], input[type="radio"] {
@@ -348,7 +355,7 @@ button {
   font-family: inherit;
   font-size: 14px;
   padding: 6px 16px;
-  border: 0.5px solid var(--color-border-secondary);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--border-radius-md);
   background: transparent;
   color: var(--color-text-primary);
@@ -368,13 +375,13 @@ select {
   font-size: 14px;
   padding: 6px 12px;
   height: 36px;
-  border: 0.5px solid var(--color-border-tertiary);
+  border: 1px solid var(--color-border-control);
   border-radius: var(--border-radius-md);
   background: var(--color-background-primary);
   color: var(--color-text-primary);
   transition: border-color 0.15s;
 }
-input:hover, textarea:hover, select:hover { border-color: var(--color-border-secondary); }
+input:hover, textarea:hover, select:hover { border-color: var(--color-text-secondary); }
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--color-accent);
@@ -397,7 +404,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 18px; height: 18px;
   border-radius: 50%;
   background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-secondary);
+  border: 1px solid var(--color-border-control);
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -405,7 +412,7 @@ input[type="range"]::-moz-range-thumb {
   width: 18px; height: 18px;
   border-radius: 50%;
   background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-secondary);
+  border: 1px solid var(--color-border-control);
   cursor: pointer;
 }
 
@@ -455,6 +462,9 @@ The sandbox already includes the OpenIntelligentUI design system. Build on it in
 Colors and theming:
 - The sandbox uses the "nitro" theme (Roboto, blue #0F5FFE accent). It automatically matches light/dark mode.
 - Use the CSS variables for every color: --color-background-primary / --color-background-secondary / --color-background-tertiary, --color-text-primary / --color-text-secondary / --color-text-tertiary, --color-accent, --color-border-control, plus the semantic info/danger/success/warning variants (--color-background-info, --color-text-danger, --color-border-success, etc.).
+- Surface hierarchy on the host canvas: In Light mode the host page canvas and --color-background-primary are pure white (#FFFFFF; in Dark mode the host canvas is #252629 and --color-background-primary is #1F1F1F), and the sandbox iframe has a transparent background.
+- Top-level widget cards, panels, KPI tiles, and chart containers MUST use var(--color-background-secondary) (#F5F5F5 in light / #252629 in dark) or var(--color-background-primary) paired with 1px solid var(--color-border-secondary) so they never blend invisibly into the white page canvas.
+- Nested surfaces inside a --color-background-secondary card should alternate with var(--color-background-primary) (#FFFFFF / #1F1F1F) or var(--color-background-tertiary) (#EAECEF / #2E2E2E).
 - Dark mode is automatic via these variables — NEVER hardcode hex values for text or backgrounds.
 - Colors read from JavaScript (canvas, three.js, charts) must come from getComputedStyle(document.documentElement).getPropertyValue('--color-...') and re-read when document.documentElement.dataset.theme changes (observe it with a MutationObserver on the data-theme attribute).
 - Fonts: --font-sans, --font-serif, --font-mono. Radii: --border-radius-md, --border-radius-lg, --border-radius-xl.

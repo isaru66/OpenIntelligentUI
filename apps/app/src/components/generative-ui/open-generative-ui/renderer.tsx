@@ -243,6 +243,7 @@ const OpenGenUIActivityRendererInner = React.memo(
     useEffect(() => {
       const sandbox = previewSandboxRef.current;
       if (!sandbox || !previewReadyRef.current) return;
+      sandbox.run(buildThemeScript(themeRef.current));
       sandbox.run(
         `document.head.innerHTML = ${JSON.stringify(
           buildPreviewHeadContent(css, previewStyles)

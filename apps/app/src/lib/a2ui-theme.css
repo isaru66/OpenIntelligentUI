@@ -115,7 +115,7 @@
 
   --primary: #137fec;
   --text-color: #fff;
-  --background-light: #f6f7f8;
+  --background-light: #ffffff;
   --background-dark: #101922;
   --border-color: oklch(from var(--background-light) l c h / calc(alpha * 0.15));
   --elevated-background-light: oklch(

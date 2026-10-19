@@ -26,12 +26,34 @@ describe("SVG_CLASSES_CSS", () => {
   it("includes the pre-built SVG color classes", () => {
     expect(SVG_CLASSES_CSS).toContain(".c-purple");
   });
+
+  it("synchronizes dark SVG rules with data-theme and prefers-color-scheme", () => {
+    expect(SVG_CLASSES_CSS).toContain(':root[data-theme="dark"] svg text.t');
+    expect(SVG_CLASSES_CSS).toContain(':root:not([data-theme="light"]) svg text.t');
+    for (const ramp of [
+      "purple",
+      "teal",
+      "coral",
+      "pink",
+      "gray",
+      "blue",
+      "green",
+      "amber",
+      "red",
+    ]) {
+      expect(SVG_CLASSES_CSS).toContain(`:root[data-theme="dark"] svg .c-${ramp}`);
+      expect(SVG_CLASSES_CSS).toContain(
+        `:root:not([data-theme="light"]) svg .c-${ramp}`,
+      );
+    }
+  });
 });
 
 describe("FORM_STYLES_CSS", () => {
   it("styles form elements", () => {
     expect(FORM_STYLES_CSS).toContain('input[type="text"],');
     expect(FORM_STYLES_CSS).toContain("button {");
+    expect(FORM_STYLES_CSS).toContain("1px solid var(--color-border-control)");
   });
 
   it("does not include the initial-render stagger block", () => {

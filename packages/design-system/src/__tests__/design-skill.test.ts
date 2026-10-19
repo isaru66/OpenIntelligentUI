@@ -32,4 +32,10 @@ describe("nitro design skill", () => {
     expect(NITRO_SKILL).toContain("getComputedStyle");
     expect(NITRO_SKILL).toContain("dataset.theme");
   });
+
+  it("guides using --color-background-secondary for cards/panels on the white light-mode canvas", () => {
+    expect(NITRO_SKILL).toContain("--color-background-secondary");
+    expect(NITRO_SKILL).toContain("#FFFFFF");
+    expect(NITRO_SKILL).toContain("--color-background-tertiary");
+  });
 });

@@ -72,8 +72,15 @@ IndexedDB, or same-origin fetch. Do not access parent DOM or invent backend APIs
 The design system provides theme CSS variables, form styles, and SVG .c-* classes.
 Use var(--color-text-primary), var(--color-background-secondary), var(--color-accent), and related tokens.
 The sandbox uses the "nitro" theme (Roboto, blue accent) and automatically matches the active
-light/dark mode; never hardcode text/background colors. Colors read in JavaScript (canvas, three.js,
-charts) must come from getComputedStyle(document.documentElement) and be re-read when
+light/dark mode; never hardcode text/background colors. The host page background in Light mode
+is pure white (#FFFFFF) and the iframe background is transparent. Top-level cards, panels,
+metric tiles, and chart containers should use var(--color-background-secondary) (or
+var(--color-background-primary) with 1px solid var(--color-border-secondary)) so they stand out
+cleanly against the white canvas in Light mode and the dark canvas in Dark mode. Inner controls
+and nested wells inside a secondary card should use var(--color-background-primary) or
+var(--color-background-tertiary) with var(--color-border-control) / var(--color-border-secondary).
+Colors read in JavaScript (canvas, Chart.js, D3, Three.js) must come from
+getComputedStyle(document.documentElement) and be re-read when
 document.documentElement.dataset.theme changes.
 An importmap provides `three`, `gsap`, `d3`, and `chart.js` from esm.sh.
 jsFunctions/jsExpressions run as classic scripts: top-level `await` is invalid.

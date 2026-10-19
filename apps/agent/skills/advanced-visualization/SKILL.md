@@ -83,8 +83,16 @@ buttons with aria-pressed instead of claiming tab semantics. Sort using a button
 inside the header and keep sorting/filtering derived from the same source data.
 Render user/retrieved strings with textContent, never interpolated HTML.
 
-Use theme variables for text, surfaces, and borders. Resolve canvas colors via
-getComputedStyle when needed. Responsive grids should collapse without overflow:
+Use theme variables for text, surfaces, and borders. The host page background in Light mode is
+pure white (#FFFFFF) and the iframe background is transparent: top-level cards, panels, metric
+tiles, and chart containers should use var(--color-background-secondary) (or
+var(--color-background-primary) with 1px solid var(--color-border-secondary)) so they stand out
+cleanly against the white canvas in Light mode and the dark canvas in Dark mode. Inner controls
+and nested wells inside a secondary card should use var(--color-background-primary) or
+var(--color-background-tertiary) with var(--color-border-control) / var(--color-border-secondary).
+Canvas / Chart.js / D3 / Three.js scripts must read colors from
+getComputedStyle(document.documentElement) and re-read when
+document.documentElement.dataset.theme changes. Responsive grids should collapse without overflow:
 `grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr))`.
 Use bounded chart containers and resize observers; do not repeatedly recreate a
 chart on every input. Provide text summaries or data tables for canvas and SVG.

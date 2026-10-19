@@ -19,7 +19,7 @@ By default in local development, the Python factory uses Azure AI Foundry (`AZUR
 | `AZURE_AI_FOUNDRY_ENDPOINT`               | Agent         | Azure AI Foundry base endpoint (`https://ai-isarar-2855.services.ai.azure.com`)     |
 | `AZURE_SUBSCRIPTION_ID`                   | Agent         | Azure subscription ID for CLI/Entra credential resolution                           |
 | `AZURE_TENANT_ID`                         | Agent         | Azure Entra tenant ID (`ddcbdc96-6162-4d91-bb0d-066343049ce1`)                      |
-| `LLM_MODEL`                               | Agent         | Defaults to `gpt-6-luna` on Foundry; `claude-*` routes to Anthropic                 |
+| `LLM_MODEL`                               | Agent         | Defaults to `gpt-6-luna` on Foundry; `claude-*` routes to Anthropic. The prompt-box AI model choices `gpt-6-luna` and `gpt-6.1-sol` are Foundry deployments on the same resource (deployment name = model name) |
 | `AZURE_DECISION_DEPLOYMENT`               | Agent         | Foundry SystemOne deployment name (defaults to `Decision-1`)                        |
 | `WEBIQ_API_KEY`                           | Agent         | API key (`x-apikey`) for Microsoft Web IQ public internet grounding                 |
 | `WEBIQ_ENDPOINT`                          | Agent         | Web IQ endpoint URL (defaults to `https://api.microsoft.ai/v3/search/web`)          |
