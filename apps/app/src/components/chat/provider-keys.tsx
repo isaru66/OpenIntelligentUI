@@ -6,6 +6,7 @@ export type ProviderKeys = { openai: string; jev: string };
 type ProviderKeysContextValue = {
   headers: Record<string, string> | undefined;
   hasKeys: boolean;
+  requireKeys: boolean;
   session: number;
   save: (keys: ProviderKeys) => void;
   clear: () => void;
@@ -17,7 +18,13 @@ type ProviderKeysContextValue = {
 };
 const ProviderKeysContext = createContext<ProviderKeysContextValue | null>(null);
 
-export function ProviderKeysProvider({ children }: { children: ReactNode }) {
+export function ProviderKeysProvider({
+  children,
+  requireKeys = process.env.NEXT_PUBLIC_REQUIRE_PROVIDER_KEYS === "true",
+}: {
+  children: ReactNode;
+  requireKeys?: boolean;
+}) {
   // Deliberately memory-only: never put credentials in browser storage or agent state.
   const [keys, setKeys] = useState<ProviderKeys | null>(null);
   const [session, setSession] = useState(0);
@@ -28,6 +35,7 @@ export function ProviderKeysProvider({ children }: { children: ReactNode }) {
     <ProviderKeysContext.Provider value={{
       headers: keys ? { "x-openai-api-key": keys.openai, "x-jev-api-key": keys.jev } : undefined,
       hasKeys: keys !== null,
+      requireKeys,
       session,
       save: (value) => { setKeys(value); setKeysOpen(false); setSession((value) => value + 1); },
       clear: () => { setKeys(null); newChat(); },

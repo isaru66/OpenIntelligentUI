@@ -46,7 +46,11 @@ def parse_credentials(headers):
 
 
 def server_credentials_available():
-    model = os.environ.get('LLM_MODEL', 'chat-latest').strip()
+    from src.azure_auth import is_azure_foundry_enabled
+
+    model = os.environ.get('LLM_MODEL', 'gpt-6-luna').strip()
+    if not model.startswith('claude-') and is_azure_foundry_enabled():
+        return True
     key = 'ANTHROPIC_API_KEY' if model.startswith('claude-') else 'OPENAI_API_KEY'
     return bool(os.environ.get(key, '').strip() and os.environ.get('TYPESAFE_API_KEY', '').strip())
 
@@ -98,7 +102,7 @@ class CredentialScopedAgent(LangGraphAGUIAgent):
 
 async def validate_credentials(credentials):
     """Exercise both APIs; never forward their response bodies or exceptions."""
-    from src.visualization_router import JEV_URL, request_options
+    from src.visualization_router import get_router_url, request_options
 
     async def check(provider, url, options):
         try:
@@ -119,7 +123,7 @@ async def validate_credentials(credentials):
                 'headers': {'Authorization': f'Bearer {credentials.openai}'},
                 'json': {'model': 'chat-latest', 'messages': [{'role': 'user', 'content': 'Reply OK.'}], 'max_completion_tokens': 8},
             }),
-            check('jev', JEV_URL, request_options([{'role': 'human', 'content': 'Hello'}])),
+            check('jev', get_router_url(), request_options([{'role': 'human', 'content': 'Hello'}])),
         )
     finally:
         current_credentials.reset(token)

@@ -11,7 +11,15 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import SystemMessage
 from pydantic import BaseModel, Field, ValidationError
 
-JEV_URL = "https://api.typesafe.ai/v1/systemone"
+from src.azure_auth import (
+    get_azure_bearer_token,
+    get_decision_endpoint,
+    is_azure_foundry_enabled,
+)
+
+DEFAULT_DECISION_MODEL = "Decision-1"
+JEV_URL = "https://ai-isarar-2855.services.ai.azure.com/providers/microsoft/v1/systemone"
+LEGACY_JEV_URL = "https://api.typesafe.ai/v1/systemone"
 VISUALIZATIONS = {
     "text": "Direct facts, prose, writing, code, conversation, or a clarification; no visual needed.",
     "table": "Basic table: exact values, records, simple side-by-side comparison; no custom interaction.",
@@ -113,19 +121,46 @@ def routing_input(state):
     return turn, context
 
 
+def get_router_url() -> str:
+    from src.credentials import current_credentials
+
+    if current_credentials.get() is not None or not is_azure_foundry_enabled():
+        return LEGACY_JEV_URL
+    return get_decision_endpoint()
+
+
+decision_url = get_router_url
+
+
 def request_options(context):
     from src.credentials import current_credentials
 
     credentials = current_credentials.get()
-    key = credentials.jev if credentials else os.environ.get("TYPESAFE_API_KEY", "").strip()
-    if not key:
-        raise ValueError(
-            "TYPESAFE_API_KEY is required for Jev visualization routing. Configure it and restart the agent."
+    if credentials:
+        headers = {"Authorization": f"Bearer {credentials.jev}"}
+        model = "jev-latest"
+    elif is_azure_foundry_enabled():
+        token = get_azure_bearer_token()
+        headers = {"Authorization": f"Bearer {token}"}
+        model = (
+            os.environ.get("AZURE_DECISION_DEPLOYMENT", "").strip()
+            or os.environ.get("DECISION_MODEL", "").strip()
+            or os.environ.get("JEV_MODEL", "").strip()
+            or DEFAULT_DECISION_MODEL
         )
+    else:
+        key = os.environ.get("TYPESAFE_API_KEY", "").strip()
+        if not key:
+            raise ValueError(
+                "TYPESAFE_API_KEY is required for Jev visualization routing. Configure it and restart the agent."
+            )
+        headers = {"Authorization": f"Bearer {key}"}
+        model = os.environ.get("JEV_MODEL", "").strip() or "jev-latest"
+
     return {
-        "headers": {"Authorization": f"Bearer {key}"},
+        "headers": headers,
         "json": {
-            "model": "jev-latest" if credentials else os.environ.get("JEV_MODEL", "jev-latest"),
+            "model": model,
             "state": {"conversation": context},
             "questions": {
                 "visualization": {
@@ -159,7 +194,9 @@ def provider_trust_env():
 def route(context):
     try:
         with httpx.Client(timeout=15, trust_env=provider_trust_env()) as client:
-            return parse_response(client.post(JEV_URL, **request_options(context)))
+            return parse_response(
+                client.post(get_router_url(), **request_options(context))
+            )
     except httpx.HTTPError:
         raise ValueError(
             "Jev visualization routing is unavailable or timed out. Please retry."
@@ -170,7 +207,7 @@ async def aroute(context):
     try:
         async with httpx.AsyncClient(timeout=15, trust_env=provider_trust_env()) as client:
             return parse_response(
-                await client.post(JEV_URL, **request_options(context))
+                await client.post(get_router_url(), **request_options(context))
             )
     except httpx.HTTPError:
         raise ValueError(

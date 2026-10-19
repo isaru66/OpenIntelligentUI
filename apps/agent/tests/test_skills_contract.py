@@ -12,7 +12,7 @@ STALE_INLINE_STYLE_FENCE = "```html\n<style>"
 
 
 def skill_text(name: str) -> str:
-    return (SKILLS_DIR / name / "SKILL.md").read_text()
+    return (SKILLS_DIR / name / "SKILL.md").read_text(encoding="utf-8")
 
 
 def test_all_three_skills_present():
@@ -25,12 +25,12 @@ def test_all_three_skills_present():
 
 @pytest.mark.parametrize("path", SKILL_FILES, ids=lambda p: p.parent.name)
 def test_no_skill_references_widget_renderer(path):
-    assert "widgetRenderer" not in path.read_text()
+    assert "widgetRenderer" not in path.read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("path", SKILL_FILES, ids=lambda p: p.parent.name)
 def test_every_skill_names_canonical_tool(path):
-    assert "generateSandboxedUi" in path.read_text()
+    assert "generateSandboxedUi" in path.read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("name", PROCEDURAL_SKILLS)
@@ -61,7 +61,7 @@ def test_advanced_visualization_library_guidance_is_canonical():
 def test_no_inline_style_blocks_in_html_examples(path):
     import re
 
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     assert STALE_INLINE_STYLE_FENCE not in text
     # <style> anywhere inside an html fence, not just at the fence start.
     for fence in re.findall(r"```html\n(.*?)```", text, re.S):

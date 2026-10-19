@@ -27,7 +27,9 @@ User prompt or chat starter suggestion
 
 The agent uses `create_deep_agent`, CopilotKit middleware, an Anthropic compatibility middleware, and `BoundedMemorySaver(max_threads=200)`. The checkpoint store is process memory, not durable shared storage. Restarting or scaling the agent can lose or split conversation state.
 
-`src/model.py` chooses ChatAnthropic for `claude-*` and ChatOpenAI for `gpt-*`. It checks the selected provider's key before constructing the client. The local default is unchanged; deployed configuration can override it.
+`src/model.py` defaults to `LLM_MODEL=gpt-6-luna` on Azure AI Foundry (`AZURE_AI_FOUNDRY_ENDPOINT`, default `https://ai-isarar-2855.services.ai.azure.com`) using Entra ID token authentication via `src/azure_auth.py` (`AZURE_SUBSCRIPTION_ID`, `AZURE_TENANT_ID`, scope `https://cognitiveservices.azure.com/.default`). Before each user turn, `src/visualization_router.py` routes visualization decisions through `Microsoft-Decision-1` (`AZURE_DECISION_DEPLOYMENT=Decision-1`) at `/providers/microsoft/v1/systemone` using the same Entra ID bearer token. When `AZURE_AI_FOUNDRY_ENABLED=false` or `claude-*` is selected, `src/model.py` and `src/visualization_router.py` use direct provider credentials (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `TYPESAFE_API_KEY`).
+
+`src/webiq.py` provides the `web_search` tool for live public internet grounding via Microsoft Web IQ (`POST https://api.microsoft.ai/v3/search/web`, configurable with `WEBIQ_ENDPOINT` and authenticated via `WEBIQ_API_KEY`). 
 
 `src/prompt.py` and the three agent skills guide response selection. Plain text is appropriate for direct answers. Native components handle supported structured tasks; custom UI serves useful diagrams, comparisons, calculators, and simulations. Planning is optional. See [Product and agent behavior](interactive-answers.md).
 
@@ -60,7 +62,7 @@ The MCP server exposes skills, prompts, and `assemble_document`. The assembler r
 
 ## Key implementation files
 
-- Agent: `apps/agent/main.py`, `src/model.py`, `src/prompt.py`, `src/query.py`, `skills/`.
+- Agent: `apps/agent/main.py`, `src/azure_auth.py`, `src/model.py`, `src/visualization_router.py`, `src/webiq.py`, `src/prompt.py`, `src/query.py`, `skills/`.
 - Runtime: `apps/app/src/app/api/copilotkit/route.ts`, `src/lib/copilotkit-runtime-options.ts`.
 - Renderer: `apps/app/src/components/generative-ui/open-generative-ui/`.
 - Host bridge: `apps/app/src/lib/sandbox/`.

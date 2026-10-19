@@ -107,9 +107,54 @@ def test_route_filters_renderers_preserving_data_tools(choice, allowed):
         assert "coverage limits" in result.system_message.content
 
 
+def test_default_azure_foundry_router_options_and_url(monkeypatch):
+    import src.visualization_router as router
+
+    monkeypatch.delenv("AZURE_AI_FOUNDRY_ENABLED", raising=False)
+    monkeypatch.delenv("AZURE_AI_FOUNDRY_ENDPOINT", raising=False)
+    monkeypatch.delenv("DECISION_ENDPOINT", raising=False)
+    monkeypatch.delenv("AZURE_DECISION_DEPLOYMENT", raising=False)
+    monkeypatch.delenv("DECISION_MODEL", raising=False)
+    monkeypatch.delenv("JEV_MODEL", raising=False)
+    monkeypatch.setattr(router, "get_azure_bearer_token", lambda: "entra-decision-token")
+
+    assert (
+        router.get_router_url()
+        == "https://ai-isarar-2855.services.ai.azure.com/providers/microsoft/v1/systemone"
+    )
+    options = router.request_options([{"role": "human", "content": "Chart sales"}])
+    assert options["json"]["model"] == "Decision-1"
+    assert options["headers"]["Authorization"].endswith("entra-decision-token")
+
+
+def test_legacy_and_byok_router_options_and_url(monkeypatch):
+    from src.credentials import Credentials, current_credentials
+    import src.visualization_router as router
+
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
+    monkeypatch.setenv("TYPESAFE_API_KEY", "legacy-typesafe-key")
+    monkeypatch.delenv("JEV_MODEL", raising=False)
+
+    assert router.get_router_url() == router.LEGACY_JEV_URL
+    legacy_opts = router.request_options([])
+    assert legacy_opts["json"]["model"] == "jev-latest"
+    assert legacy_opts["headers"]["Authorization"].endswith("legacy-typesafe-key")
+
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "true")
+    token = current_credentials.set(Credentials("byok-openai", "byok-jev"))
+    try:
+        assert router.get_router_url() == router.LEGACY_JEV_URL
+        byok_opts = router.request_options([])
+        assert byok_opts["json"]["model"] == "jev-latest"
+        assert byok_opts["headers"]["Authorization"].endswith("byok-jev")
+    finally:
+        current_credentials.reset(token)
+
+
 def test_missing_key_is_actionable(monkeypatch):
     from src.visualization_router import request_options
 
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
     monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
     with pytest.raises(ValueError, match="TYPESAFE_API_KEY"):
         request_options([])
@@ -128,6 +173,7 @@ def test_timeout_is_actionable_without_secret_headers(monkeypatch):
     import httpx
     import src.visualization_router as router
 
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
     monkeypatch.setenv("TYPESAFE_API_KEY", "private-test-value")
 
     def timeout(*args, **kwargs):

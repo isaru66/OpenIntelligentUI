@@ -67,6 +67,7 @@ def test_request_model_and_jev_override_without_environment_mutation(monkeypatch
     from src.credentials import Credentials, current_credentials
     from src.model import request_model
     from src.visualization_router import request_options
+    monkeypatch.setenv('AZURE_AI_FOUNDRY_ENABLED', 'false')
     monkeypatch.setenv('OPENAI_API_KEY', 'server-openai')
     monkeypatch.setenv('TYPESAFE_API_KEY', 'server-jev')
     monkeypatch.setenv('JEV_MODEL', 'server-model')
@@ -88,11 +89,24 @@ def test_request_model_and_jev_override_without_environment_mutation(monkeypatch
 
 def test_startup_without_credentials_uses_explicit_unconfigured_model(monkeypatch):
     from src.model import build_model
+    monkeypatch.setenv('AZURE_AI_FOUNDRY_ENABLED', 'false')
     monkeypatch.delenv('OPENAI_API_KEY', raising=False)
     monkeypatch.delenv('LLM_MODEL', raising=False)
     model = build_model(allow_unconfigured=True)
     with pytest.raises(ValueError, match='credentials'):
         model.invoke('hello')
+
+
+def test_server_credentials_available_with_azure_foundry_default(monkeypatch):
+    from src.credentials import server_credentials_available
+    monkeypatch.delenv('OPENAI_API_KEY', raising=False)
+    monkeypatch.delenv('TYPESAFE_API_KEY', raising=False)
+    monkeypatch.setenv('AZURE_AI_FOUNDRY_ENABLED', 'true')
+    monkeypatch.setenv('LLM_MODEL', 'gpt-6-luna')
+    assert server_credentials_available() is True
+
+    monkeypatch.setenv('AZURE_AI_FOUNDRY_ENABLED', 'false')
+    assert server_credentials_available() is False
 
 
 def test_thread_namespace_separates_credentials_and_fallback():
@@ -164,6 +178,7 @@ def test_main_starts_without_server_credentials(monkeypatch):
     import sys
     environment = {k: v for k, v in os.environ.items() if k not in {'OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY', 'LLM_MODEL'}}
     environment['PYTHON_DOTENV_DISABLED'] = '1'
+    environment['AZURE_AI_FOUNDRY_ENABLED'] = 'false'
     result = subprocess.run([sys.executable, '-c', "from fastapi.testclient import TestClient; from main import app; c=TestClient(app); assert c.get('/health').status_code == 200; r=c.post('/', json={}); assert r.status_code == 401; assert r.json()['code'] == 'credentials_required'"], env=environment, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
 
@@ -269,6 +284,49 @@ def test_internal_streaming_errors_are_sanitized(monkeypatch):
             assert 'visitor-secret' not in str(error.value)
         finally:
             current_credentials.reset(token)
+    asyncio.run(exercise())
+
+
+def test_credential_scoped_model_does_not_duplicate_stream_events():
+    from langchain_core.language_models.fake_chat_models import FakeMessagesListChatModel
+    from langchain_core.messages import AIMessageChunk
+    from langchain_core.outputs import ChatGenerationChunk
+    import src.model as models
+
+    class ToolStreamModel(FakeMessagesListChatModel):
+        def bind_tools(self, tools, **kwargs):
+            return self.bind(tools=tools, **kwargs)
+
+        async def _astream(self, messages, stop=None, run_manager=None, **kwargs):
+            assert 'tools' in kwargs
+            for delta in ['{"a":', '1,', '"b":2}']:
+                yield ChatGenerationChunk(
+                    message=AIMessageChunk(
+                        content='',
+                        tool_call_chunks=[
+                            {
+                                'name': 'my_tool',
+                                'args': delta,
+                                'id': 'call_1',
+                                'index': 0,
+                                'type': 'tool_call_chunk',
+                            }
+                        ],
+                    )
+                )
+
+    async def exercise():
+        wrapped = models.CredentialScopedModel(fallback=ToolStreamModel(responses=[]))
+        bound = wrapped.bind_tools([{'type': 'function', 'function': {'name': 'my_tool', 'parameters': {'type': 'object', 'properties': {}}}}])
+        events = [
+            ev
+            async for ev in bound.astream_events('hi', version='v2')
+            if ev['event'] == 'on_chat_model_stream'
+            and ev['data']['chunk'].tool_call_chunks
+        ]
+        combined = ''.join(ev['data']['chunk'].tool_call_chunks[0]['args'] for ev in events)
+        assert json.loads(combined) == {'a': 1, 'b': 2}
+
     asyncio.run(exercise())
 
 

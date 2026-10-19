@@ -28,8 +28,21 @@ function Harness() {
 }
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
-it("opens setup before sending and preserves the message across cancel and the key-save remount", () => {
+it("submits messages and suggestions immediately in default keyless local mode", () => {
   render(<ProviderKeysProvider><Harness /></ProviderKeysProvider>);
+  fireEvent.change(screen.getByLabelText("Message"), { target: { value: "Show a map" } });
+  fireEvent.click(screen.getByText("Send"));
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(submit).toHaveBeenCalledExactlyOnceWith("Show a map");
+  expect(screen.getByLabelText("Message")).toHaveValue("");
+
+  fireEvent.click(screen.getByText("Example"));
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(select).toHaveBeenCalledOnce();
+});
+
+it("opens setup before sending and preserves the message across cancel and the key-save remount when requireKeys is true", () => {
+  render(<ProviderKeysProvider requireKeys><Harness /></ProviderKeysProvider>);
   fireEvent.change(screen.getByLabelText("Message"), { target: { value: "Show a map" } });
   fireEvent.click(screen.getByText("Send"));
   expect(submit).not.toHaveBeenCalled();
@@ -46,8 +59,8 @@ it("opens setup before sending and preserves the message across cancel and the k
   expect(screen.getByLabelText("Message")).toHaveValue("");
 });
 
-it("gates example prompts and clears the preserved draft when starting a new chat", () => {
-  render(<ProviderKeysProvider><Harness /></ProviderKeysProvider>);
+it("gates example prompts and clears the preserved draft when starting a new chat when requireKeys is true", () => {
+  render(<ProviderKeysProvider requireKeys><Harness /></ProviderKeysProvider>);
   fireEvent.click(screen.getByText("Example"));
   expect(select).not.toHaveBeenCalled();
   expect(screen.getByLabelText("Message")).toHaveValue("Explain flight");

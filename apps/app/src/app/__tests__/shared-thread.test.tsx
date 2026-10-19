@@ -55,6 +55,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 
 function mockRuntime() {
@@ -133,7 +134,31 @@ function RuntimeReady() {
   );
 }
 
-it("submits through the real chat-only page composer and preserves its message", async () => {
+it("submits directly through the page composer in default keyless local mode", async () => {
+  const runInputs = mockRuntime();
+  render(
+    <Providers>
+      <RuntimeReady />
+      <HomePage />
+    </Providers>,
+  );
+  await waitFor(() =>
+    expect(screen.getByTestId("runtime-status")).toHaveTextContent("connected"),
+  );
+  fireEvent.change(screen.getByRole("textbox"), {
+    target: { value: "Explain bicycle gears" },
+  });
+  fireEvent.keyDown(screen.getByRole("textbox"), {
+    key: "Enter",
+    code: "Enter",
+  });
+  expect(screen.queryByRole("dialog", { name: "Add API keys to start" })).not.toBeInTheDocument();
+  await waitFor(() => expect(runInputs).toHaveLength(1));
+  expect(await screen.findByText("Explain bicycle gears")).toBeVisible();
+});
+
+it("submits through the real chat-only page composer and preserves its message when requireKeys is enabled", async () => {
+  vi.stubEnv("NEXT_PUBLIC_REQUIRE_PROVIDER_KEYS", "true");
   const runInputs = mockRuntime();
   render(
     <Providers>

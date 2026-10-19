@@ -11,13 +11,21 @@ The repository's `render.yaml` defines two services:
 | `open-generative-ui-agent` | Python 3.12.6, `apps/agent` | `pip install uv && uv sync`                                                                            | `uv run uvicorn main:app --host 0.0.0.0 --port $PORT`, `/health` |
 | `open-generative-ui-app`   | Node 22, repository root    | `corepack enable && pnpm install --no-frozen-lockfile && pnpm exec turbo run build --filter=@repo/app` | `pnpm --filter @repo/app start`, `/api/health`                   |
 
-For shared credentials, the blueprint and Python factory default to `LLM_MODEL=chat-latest`, using `OPENAI_API_KEY`. Jev visualization routing uses `TYPESAFE_API_KEY`; `JEV_MODEL` defaults to `jev-latest`. Verify access to the selected model before launch; a configured model name does not prove availability.
+By default in local development, the Python factory uses Azure AI Foundry (`AZURE_AI_FOUNDRY_ENDPOINT=https://ai-isarar-2855.services.ai.azure.com`) with Entra ID authentication (`AZURE_SUBSCRIPTION_ID`, `AZURE_TENANT_ID`), `LLM_MODEL=gpt-6-luna`, and `AZURE_DECISION_DEPLOYMENT=Decision-1` (`Microsoft-Decision-1`) for visualization routing, plus Microsoft Web IQ (`WEBIQ_API_KEY`, `WEBIQ_ENDPOINT`) for public internet grounding. When `AZURE_AI_FOUNDRY_ENABLED=false` (or in the Render blueprint), the agent can use `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` and `TYPESAFE_API_KEY`. Verify access to the selected model before launch; a configured model name does not prove availability.
 
 | Variable                                  | Service       | Purpose                                                                             |
 | ----------------------------------------- | ------------- | ----------------------------------------------------------------------------------- |
-| `LLM_MODEL`                               | Agent         | `claude-*` routes to Anthropic; `gpt-*` routes to OpenAI                            |
-| `ANTHROPIC_API_KEY`                       | Agent         | Required when selecting Anthropic                                                   |
-| `OPENAI_API_KEY`                          | Agent         | Required when selecting OpenAI                                                      |
+| `AZURE_AI_FOUNDRY_ENABLED`                | Agent         | Defaults to `true` for Entra ID authentication against Azure AI Foundry             |
+| `AZURE_AI_FOUNDRY_ENDPOINT`               | Agent         | Azure AI Foundry base endpoint (`https://ai-isarar-2855.services.ai.azure.com`)     |
+| `AZURE_SUBSCRIPTION_ID`                   | Agent         | Azure subscription ID for CLI/Entra credential resolution                           |
+| `AZURE_TENANT_ID`                         | Agent         | Azure Entra tenant ID (`ddcbdc96-6162-4d91-bb0d-066343049ce1`)                      |
+| `LLM_MODEL`                               | Agent         | Defaults to `gpt-6-luna` on Foundry; `claude-*` routes to Anthropic                 |
+| `AZURE_DECISION_DEPLOYMENT`               | Agent         | Foundry SystemOne deployment name (defaults to `Decision-1`)                        |
+| `WEBIQ_API_KEY`                           | Agent         | API key (`x-apikey`) for Microsoft Web IQ public internet grounding                 |
+| `WEBIQ_ENDPOINT`                          | Agent         | Web IQ endpoint URL (defaults to `https://api.microsoft.ai/v3/search/web`)          |
+| `ANTHROPIC_API_KEY`                       | Agent         | Required when selecting Anthropic (`claude-*`)                                      |
+| `OPENAI_API_KEY`                          | Agent         | Required when selecting OpenAI with `AZURE_AI_FOUNDRY_ENABLED=false`                |
+| `TYPESAFE_API_KEY`                        | Agent         | Required for Jev routing when `AZURE_AI_FOUNDRY_ENABLED=false`                      |
 | `LANGSMITH_API_KEY`                       | As configured | Optional tracing configuration                                                      |
 | `LANGGRAPH_DEPLOYMENT_URL`                | Frontend      | Blueprint obtains agent host:port via `fromService`; runtime normalizes it to a URL |
 | `RATE_LIMIT_ENABLED`                      | Frontend      | Defaults to `false` in blueprint                                                    |

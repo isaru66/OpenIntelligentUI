@@ -10,9 +10,11 @@ import {
   buildFinalFrameContent,
   buildPreviewBodyMorph,
   buildPreviewHeadContent,
+  buildThemeScript,
   MEASUREMENT_JS,
   PREVIEW_FRAME_CONTENT,
   RESIZE_MESSAGE_TYPE,
+  resolveFrameTheme,
 } from "./frame-content";
 import { extractCompleteStyles, processPartialHtml } from "./process-partial-html";
 import { loadWebsandbox, type SandboxInstance } from "./websandbox-loader";
@@ -212,6 +214,7 @@ const OpenGenUIActivityRendererInner = React.memo(
             previewReadyRef.current = true;
 
             sandbox.run(IDIOMORPH_JS);
+            sandbox.run(buildThemeScript(resolveFrameTheme()));
             sandbox.run(
               `document.head.innerHTML = ${JSON.stringify(
                 buildPreviewHeadContent(css, previewStyles)

@@ -50,9 +50,26 @@ export function ensureHead(html: string): string {
  * after the opening <head> tag so it precedes anything the generated document
  * put in its own head.
  */
-export function buildFinalFrameContent(html: string, css?: string): string {
+export type FrameTheme = "light" | "dark";
+
+/** Resolves the host app's active theme from the root element class. */
+export function resolveFrameTheme(): FrameTheme {
+  if (typeof document === "undefined") return "light";
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
+export function buildThemeScript(theme: FrameTheme): string {
+  return `document.documentElement.setAttribute("data-theme", ${JSON.stringify(theme)});`;
+}
+
+export function buildFinalFrameContent(
+  html: string,
+  css?: string,
+  theme: FrameTheme = resolveFrameTheme()
+): string {
   const headContent =
     CSP_META_TAG +
+    `<script>${buildThemeScript(theme)}</script>` +
     IMPORTMAP_SCRIPT_TAG +
     TRIP_ANIMATOR_SCRIPT +
     DESIGN_SYSTEM_STYLE_TAG +

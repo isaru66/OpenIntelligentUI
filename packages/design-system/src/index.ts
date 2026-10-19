@@ -2,6 +2,33 @@
 // and the CDN import map shared by the Next.js app and the MCP server.
 
 // ─── Theme Variables ─────────────────────────────────────────────────
+// An explicit data-theme attribute on <html> ("light" | "dark") wins over the
+// OS prefers-color-scheme so embedded UI follows the host app's theme.
+const DARK_TOKENS = `    color-scheme: dark;
+    --color-background-primary: #1a1a18;
+    --color-background-secondary: #2c2c2a;
+    --color-background-tertiary: #222220;
+    --color-background-info: #0C447C;
+    --color-background-danger: #501313;
+    --color-background-success: #173404;
+    --color-background-warning: #412402;
+
+    --color-text-primary: #e8e6de;
+    --color-text-secondary: #9c9a92;
+    --color-text-tertiary: #73726c;
+    --color-text-info: #85B7EB;
+    --color-text-danger: #F09595;
+    --color-text-success: #97C459;
+    --color-text-warning: #EF9F27;
+
+    --color-border-primary: rgba(255, 255, 255, 0.4);
+    --color-border-secondary: rgba(255, 255, 255, 0.3);
+    --color-border-tertiary: rgba(255, 255, 255, 0.15);
+    --color-border-info: #85B7EB;
+    --color-border-danger: #F09595;
+    --color-border-success: #97C459;
+    --color-border-warning: #EF9F27;`;
+
 export const THEME_CSS = `
 :root {
   --color-background-primary: #ffffff;
@@ -43,32 +70,16 @@ export const THEME_CSS = `
   --b: var(--color-border-tertiary);
 }
 
+:root[data-theme="light"] { color-scheme: light; }
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-background-primary: #1a1a18;
-    --color-background-secondary: #2c2c2a;
-    --color-background-tertiary: #222220;
-    --color-background-info: #0C447C;
-    --color-background-danger: #501313;
-    --color-background-success: #173404;
-    --color-background-warning: #412402;
-
-    --color-text-primary: #e8e6de;
-    --color-text-secondary: #9c9a92;
-    --color-text-tertiary: #73726c;
-    --color-text-info: #85B7EB;
-    --color-text-danger: #F09595;
-    --color-text-success: #97C459;
-    --color-text-warning: #EF9F27;
-
-    --color-border-primary: rgba(255, 255, 255, 0.4);
-    --color-border-secondary: rgba(255, 255, 255, 0.3);
-    --color-border-tertiary: rgba(255, 255, 255, 0.15);
-    --color-border-info: #85B7EB;
-    --color-border-danger: #F09595;
-    --color-border-success: #97C459;
-    --color-border-warning: #EF9F27;
+  :root:not([data-theme="light"]) {
+${DARK_TOKENS}
   }
+}
+
+:root[data-theme="dark"] {
+${DARK_TOKENS}
 }
 `;
 

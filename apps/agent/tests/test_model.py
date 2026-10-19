@@ -10,14 +10,48 @@ os.environ.setdefault("OPENAI_API_KEY", "test-key")
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
 
-from src.model import build_model
+import src.model as model_module
+from src.credentials import Credentials, current_credentials
+from src.model import DEFAULT_MODEL, build_model, request_model
 
 
-def test_default_model_is_chatgpt_instant(monkeypatch):
+def test_default_model_is_gpt_6_luna_on_azure_foundry(monkeypatch):
     monkeypatch.delenv("LLM_MODEL", raising=False)
+    monkeypatch.delenv("AZURE_AI_FOUNDRY_ENABLED", raising=False)
+    monkeypatch.delenv("AZURE_AI_FOUNDRY_ENDPOINT", raising=False)
+
+    fake_provider = lambda: "entra-token"
+    monkeypatch.setattr(model_module, "get_azure_token_provider", lambda: fake_provider)
+
+    assert DEFAULT_MODEL == "gpt-6-luna"
     model = build_model()
     assert isinstance(model, ChatOpenAI)
-    assert model.model_name == "chat-latest"
+    assert model.model_name == "gpt-6-luna"
+    assert model.openai_api_base == "https://ai-isarar-2855.services.ai.azure.com/openai/v1"
+    assert model.reasoning_effort == "none"
+    assert callable(model.openai_api_key)
+    assert model.openai_api_key() == "entra-token"
+
+
+def test_foundry_disabled_or_byok_uses_standard_openai_and_anthropic(monkeypatch):
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
+    monkeypatch.setenv("OPENAI_API_KEY", "server-openai-key")
+    monkeypatch.setenv("LLM_MODEL", "chat-latest")
+
+    fallback = build_model()
+    assert isinstance(fallback, ChatOpenAI)
+    assert fallback.model_name == "chat-latest"
+    assert fallback.openai_api_base is None
+
+    token = current_credentials.set(Credentials("byok-openai", "byok-jev"))
+    try:
+        byok_model = request_model(fallback)
+        assert isinstance(byok_model, ChatOpenAI)
+        assert byok_model.model_name == "chat-latest"
+        assert byok_model.openai_api_base == "https://api.openai.com/v1"
+        assert byok_model.openai_api_key.get_secret_value() == "byok-openai"
+    finally:
+        current_credentials.reset(token)
 
 
 def test_llm_model_env_override(monkeypatch: pytest.MonkeyPatch):
@@ -77,6 +111,7 @@ def test_invalid_model_configuration_fails_before_client_creation(monkeypatch, n
 )
 @pytest.mark.parametrize("value", [None, "", "   "])
 def test_missing_provider_key_has_actionable_error(monkeypatch, model, key, value):
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
     monkeypatch.setenv("LLM_MODEL", model)
     if value is None:
         monkeypatch.delenv(key, raising=False)

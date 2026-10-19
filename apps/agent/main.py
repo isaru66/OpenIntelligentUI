@@ -25,6 +25,7 @@ from src.credentials import (
 from src.visualization_router import JevVisualizationMiddleware
 from src.skill_backend import SKILL_SOURCES, build_agent_backend
 from src.query import query_data
+from src.webiq import web_search
 from src.todos import AgentState, todo_tools
 from src.form import generate_form
 from src.trip_images import get_trip_stop_images
@@ -35,7 +36,7 @@ load_dotenv()
 
 agent = create_deep_agent(
     model=CredentialScopedModel(fallback=build_model(allow_unconfigured=True)),
-    tools=[query_data, get_trip_stop_images, plan_visualization, *todo_tools, generate_form],
+    tools=[query_data, web_search, get_trip_stop_images, plan_visualization, *todo_tools, generate_form],
     middleware=[
         RequestModelMiddleware(),
         CopilotKitMiddleware(),
