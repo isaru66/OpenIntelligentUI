@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      tailwind = { config: { corePlugins: { preflight: false } } };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto%3Awght%40100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *, ::before, ::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+    </style>
+
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body style="background-color: #252629">
+    <div
+      data-pencil-name="Themed Chat - Dark (Bill Splitter)"
+      class="box-border w-[1440px] h-[900px] flex flex-col gap-0 justify-start items-start bg-[#252629] overflow-hidden"
+    >
+      <div
+        data-pencil-name="Top Bar"
+        class="box-border w-full h-fit shrink-0 flex flex-row gap-0 p-[12px_32px] justify-between items-center bg-[#1F1F1F] [border-width:0px_0px_1px_0px] [border-style:solid] [border-color:#2E2E2E]"
+      >
+        <div
+          data-pencil-name="Open Intelligent UI"
+          class="text-[18px]/[normal] box-border text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+        >
+          Open Intelligent UI
+        </div>
+        <div
+          data-pencil-name="Top Actions"
+          class="box-border w-fit shrink-0 h-fit flex flex-row gap-[24px] justify-start items-center"
+        >
+          <div
+            data-pencil-name="New chat"
+            class="text-[14px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+          >
+            New chat
+          </div>
+          <div
+            data-pencil-name="API keys"
+            class="text-[14px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+          >
+            API keys
+          </div>
+          <div
+            data-pencil-name="GitHub ↗"
+            class="text-[14px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+          >
+            GitHub ↗
+          </div>
+          <div
+            data-pencil-name="Theme Mode Switcher"
+            class="box-border w-fit shrink-0 h-fit flex flex-row gap-0 justify-start items-start [border:1px_solid_#414347]"
+          >
+            <div
+              data-pencil-name="Mode System"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] p-[8px_12px] justify-start items-center bg-[#1F1F1F]"
+            >
+              <svg
+                data-pencil-name="Icon"
+                data-icon-name="monitor"
+                data-icon-set="lucide"
+                viewBox="0 0 13.99993896484375 14"
+                preserveAspectRatio="xMidYMid meet"
+                xmlns="http://www.w3.org/2000/svg"
+                class="box-border w-[16px] shrink-0 h-[16px]"
+              >
+                <path
+                  d="M1.97559 1.20313q-0.47852 0.09912-0.83741 0.44433-0.35547 0.3418-0.4956 0.80322-0.02734 0.14014-0.04102 0.32129-0.01367 0.23926-0.02734 0.92285l0.01367 4.63477q0 0.54688 0.02734 0.72803 0.01367 0.12646 0.05811 0.25293l0.01367 0.04101q0.14014 0.37939 0.42725 0.65284 0.28711 0.27002 0.66308 0.39648l0.01368 0.01367q0.14014 0.04443 0.2666 0.05811 0.15381 0.01367 0.6289 0.02734l3.73926 0 0 1.17578-1.91748 0-0.08545 0.04102q-0.22217 0.11279-0.30078 0.33838-0.0752 0.22217 0.00684 0.43408 0.05811 0.0957 0.14013 0.18115 0.08545 0.08203 0.16748 0.11963 0.08545 0.03418 0.40674 0.03418l2.15674 0 2.15674 0q0.32129 0 0.40332-0.03418 0.08545-0.0376 0.16748-0.11963 0.08545-0.08545 0.1333-0.18799 0.05127-0.10596 0.05127-0.23242 0-0.12646-0.04102-0.23926-0.09912-0.19482-0.29394-0.29394l-0.08545-0.04102-1.91748 0 0-1.17578 3.73926 0q0.4751-0.01367 0.6289-0.02734 0.12646-0.01367 0.2666-0.05811l0.01368-0.01367q0.37598-0.12646 0.66308-0.39648 0.28711-0.27344 0.42725-0.65284l0.01367-0.04101q0.04443-0.12646 0.05811-0.25293 0.02734-0.18115 0.02734-0.71436l0.01367-4.64844q-0.01367-0.68359-0.02734-0.92285-0.01367-0.18115-0.04102-0.32129-0.14014-0.4751-0.50586-0.81005-0.3623-0.33838-0.84082-0.4375-0.10938-0.02734-0.81006-0.02735l-4.21435 0-4.17334 0q-0.72803 0.01367-0.8374 0.02735z m9.78564 1.14843q0.30762 0.04102 0.43408 0.32129l0.04102 0.09912 0 6.13184-0.04102 0.09912q-0.11279 0.2085-0.32471 0.29394l-0.0957 0.02735-9.5498 0-0.09571-0.02735q-0.21191-0.08545-0.3247-0.29394l-0.04102-0.09912 0-6.13184 0.04102-0.09912q0.05811-0.12646 0.16748-0.21533 0.11279-0.09229 0.23242-0.11279 0.11963-0.02051 4.78174-0.02051 4.66211 0 4.7749 0.02734z"
+                  fill="#A0A6B2"
+                ></path>
+              </svg>
+              <div
+                data-pencil-name="System"
+                class="text-[14px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-medium text-left [white-space:nowrap]"
+              >
+                System
+              </div>
+            </div>
+            <div
+              data-pencil-name="Mode Light"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] p-[8px_12px] justify-start items-center bg-[#1F1F1F]"
+            >
+              <svg
+                data-pencil-name="Icon"
+                data-icon-name="sun"
+                data-icon-set="lucide"
+                viewBox="0 0 13.99993896484375 14"
+                preserveAspectRatio="xMidYMid meet"
+                xmlns="http://www.w3.org/2000/svg"
+                class="box-border w-[16px] shrink-0 h-[16px]"
+              >
+                <path
+                  d="M6.90088 0.60156q-0.18115 0.02734-0.32129 0.16748-0.08203 0.08545-0.11279 0.15723-0.02734 0.06836-0.04102 0.24951 0 0.12646 0 0.57422 0 0.44775 0 0.57422 0.01367 0.18115 0.04102 0.25293 0.03076 0.06836 0.11279 0.15381 0.18115 0.18115 0.42041 0.18115 0.23926 0 0.42041-0.18115 0.08203-0.08545 0.10938-0.15381 0.03076-0.07178 0.04443-0.25293 0-0.12646 0-0.57422l0-0.60156q0-0.12646-0.02734-0.18115-0.07178-0.19824-0.25293-0.30079-0.18115-0.10596-0.39307-0.06494z m-4.15625 1.70899q-0.21191 0.04102-0.33838 0.21875-0.12305 0.17432-0.10937 0.38281 0.01367 0.15381 0.0957 0.27344 0.08545 0.11963 0.47851 0.52295 0.4751 0.47852 0.54346 0.50586 0.2666 0.14014 0.5332 0.00683 0.2666-0.1333 0.32129-0.42724 0.04443-0.19482-0.05468-0.3794-0.02734-0.06836-0.50586-0.54346-0.30762-0.29395-0.41358-0.39306-0.10254-0.09912-0.17431-0.1333-0.06836-0.03418-0.18799-0.04102-0.11963-0.00684-0.18799 0.00684z m8.24414 0q-0.06836 0.01367-0.14697 0.0581-0.07519 0.04102-0.54688 0.50928-0.46826 0.46826-0.50928 0.53662-0.14014 0.28027-0.00683 0.54004 0.1333 0.25977 0.42725 0.31445 0.18115 0.04443 0.37939-0.05468 0.06836-0.02734 0.54346-0.50586 0.29395-0.30762 0.39306-0.41016 0.09912-0.10596 0.12647-0.17773 0.11279-0.22217 0.02051-0.44434-0.09229-0.22559-0.31446-0.33838-0.07178-0.02734-0.18457-0.03418-0.10938-0.00684-0.18115 0.00684z m-4.18359 1.79101q-0.57422 0.02734-1.08008 0.28028-0.65625 0.32129-1.06983 0.88183-0.41357 0.56055-0.54004 1.28858-0.02734 0.15381-0.02734 0.44775 0 0.29395 0.02734 0.44775 0.14014 0.81348 0.64942 1.42188 0.5127 0.6084 1.26806 0.875 0.25293 0.0957 0.46143 0.1333 0.21191 0.03418 0.50586 0.03418 0.29395 0 0.50244-0.03418 0.21191-0.0376 0.46485-0.1333 0.76904-0.2666 1.28515-0.90234 0.51953-0.63916 0.63233-1.44922 0.02734-0.15381 0.02734-0.42041 0-0.2666-0.02734-0.42041-0.12646-0.71436-0.54004-1.28174-0.41357-0.56738-1.07325-0.89551-0.65625-0.32813-1.4663-0.27344z m0.46142 1.17578q0.40674 0.05811 0.74854 0.3042 0.3418 0.24268 0.52636 0.60498 0.14014 0.28027 0.18116 0.54688 0.04102 0.2666 0 0.5332-0.08545 0.54688-0.46485 0.93994-0.37598 0.38965-0.92285 0.50244-0.4751 0.0957-0.92285-0.06494-0.44775-0.16064-0.75537-0.52978-0.30762-0.37256-0.3794-0.84766-0.04102-0.2666 0-0.5332 0.08545-0.56055 0.48194-0.96387 0.3999-0.40674 0.96045-0.49219 0.2666-0.04102 0.54687 0z m-6.28564 1.17578q-0.18457 0.05811-0.29053 0.21192-0.10254 0.15381-0.10254 0.33496 0 0.23926 0.18115 0.42041 0.08545 0.08203 0.15381 0.11279 0.07178 0.02734 0.25293 0.04102 0.12646 0 0.57422 0 0.44775 0 0.57422 0 0.18115-0.01367 0.24951-0.04102 0.07178-0.03076 0.15723-0.11279 0.18115-0.18115 0.18115-0.42041 0-0.23926-0.16748-0.40674-0.07178-0.06836-0.16748-0.12646l-0.08545-0.04102-0.72803 0q-0.72803 0-0.78271 0.02734z m10.5 0q-0.18457 0.05811-0.29053 0.21192-0.10254 0.15381-0.10254 0.33496 0 0.23926 0.18115 0.42041 0.08545 0.08203 0.15381 0.11279 0.07178 0.02734 0.25293 0.04102 0.12646 0 0.57422 0 0.44775 0 0.57422 0 0.18115-0.01367 0.24951-0.04102 0.07178-0.03076 0.15723-0.11279 0.18115-0.18115 0.18115-0.42041 0-0.23926-0.16748-0.40674-0.07178-0.06836-0.16748-0.12646l-0.08545-0.04102-0.72803 0q-0.72803 0-0.78271 0.02734z m-7.89551 3.27784q-0.09912 0.01367-0.17774 0.06152-0.0752 0.04785-0.53662 0.5127-0.30762 0.29395-0.3999 0.3999-0.09229 0.10254-0.11963 0.17432-0.11279 0.23584-0.01367 0.46142 0.09912 0.22217 0.32129 0.32129 0.22559 0.09912 0.46143-0.01367 0.07178-0.02734 0.17431-0.12647 0.10596-0.09912 0.41358-0.39306 0.47852-0.4751 0.50586-0.54346 0.09912-0.18457 0.05468-0.3794-0.04102-0.25293-0.23925-0.37597-0.19482-0.12646-0.44434-0.09912z m6.6206 0q-0.28027 0.04102-0.42041 0.30761-0.14014 0.2666 0 0.54688 0.02734 0.06836 0.50586 0.54346 0.30762 0.29395 0.41016 0.39306 0.10596 0.09912 0.17774 0.12647 0.23584 0.11279 0.458 0.01367 0.22559-0.09912 0.32471-0.32129 0.09912-0.22559-0.01367-0.46142-0.02734-0.07178-0.11963-0.16749-0.09229-0.09912-0.35547-0.36572-0.42041-0.42041-0.51953-0.50586-0.19483-0.13672-0.44776-0.10937z m-3.30517 1.3706q-0.18115 0.02734-0.32129 0.16748-0.08203 0.08545-0.11279 0.15723-0.02734 0.06836-0.04102 0.24951 0 0.12646 0 0.57422 0 0.44775 0 0.57422 0.01367 0.18115 0.04102 0.25293 0.03076 0.06836 0.11279 0.15381 0.18115 0.18115 0.42041 0.18115 0.23926 0 0.42041-0.18115 0.08203-0.08545 0.10938-0.15381 0.03076-0.07178 0.04443-0.25293 0-0.12646 0-0.57422l0-0.60156q0-0.12647-0.02734-0.18115-0.07178-0.19824-0.25293-0.30079-0.18115-0.10596-0.39307-0.06494z"
+                  fill="#A0A6B2"
+                ></path>
+              </svg>
+              <div
+                data-pencil-name="Light"
+                class="text-[14px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-medium text-left [white-space:nowrap]"
+              >
+                Light
+              </div>
+            </div>
+            <div
+              data-pencil-name="Mode Dark (Active)"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] p-[8px_12px] justify-start items-center bg-[#0F5FFE]"
+            >
+              <svg
+                data-pencil-name="Icon"
+                data-icon-name="moon"
+                data-icon-set="lucide"
+                viewBox="0 0 13.99993896484375 14"
+                preserveAspectRatio="xMidYMid meet"
+                xmlns="http://www.w3.org/2000/svg"
+                class="box-border w-[16px] shrink-0 h-[16px]"
+              >
+                <path
+                  d="M6.56592 1.18945q-1.12109 0.08545-2.1294 0.57422-1.38428 0.67334-2.23877 1.9209-0.85449 1.24414-1.0083 2.78223-0.02734 0.22559-0.01367 0.68017 0.01367 0.45459 0.04102 0.68018 0.1709 1.07666 0.67334 1.98926 0.50244 0.90918 1.30224 1.60644 0.56055 0.47851 1.23047 0.81348 0.67334 0.33496 1.3877 0.4751 0.34863 0.07178 0.55029 0.09228 0.20508 0.02051 0.65283 0.02051 0.36572 0 0.50586-0.00684 0.14014-0.00684 0.30762-0.03418 1.9585-0.30762 3.30176-1.66797 0.95361-0.95019 1.37402-2.17041 0.2666-0.79639 0.32129-1.56543 0.02734-0.43408-0.23926-0.69384-0.2666-0.25977-0.64258-0.25977-0.14014 0-0.25293 0.0376-0.11279 0.03418-0.28027 0.12988-0.2085 0.11279-0.2666 0.14014-0.55713 0.23926-1.09033 0.2666-0.85449 0.02734-1.60303-0.40674-0.74854-0.43408-1.12793-1.20312-0.16748-0.32129-0.23926-0.62891-0.06836-0.30762-0.06836-0.68701 0-0.42041 0.08887-0.76221 0.09229-0.34521 0.31787-0.73486 0.08203-0.15381 0.11621-0.25977 0.0376-0.10596 0.0376-0.24609 0-0.14014-0.02734-0.25293-0.05811-0.23584-0.2461-0.41016-0.18799-0.17773-0.42724-0.21875-0.12646-0.01367-0.30762 0z m-0.39307 1.27491q-0.02734 0.05469-0.0957 0.22216-0.42041 1.19287-0.11279 2.38233 0.2666 1.09033 1.07666 1.89013 0.95361 0.96387 2.35156 1.17579 0.19824 0.02734 0.51953 0.02734 0.32129 0 0.5332-0.02734 0.24951-0.04443 0.55713-0.12647 0.31104-0.08545 0.50586-0.16748l0.06836-0.02734 0 0.04101q0.01367 0.04102-0.06494 0.30762-0.0752 0.2666-0.11621 0.42041-0.12646 0.32129-0.33155 0.68701-0.20166 0.3623-0.41015 0.62891-0.58789 0.7417-1.41504 1.18945-0.82373 0.44775-1.75 0.55371-0.92285 0.10596-1.83203-0.17431-1.03564-0.30762-1.82862-1.03565-0.78955-0.72803-1.18261-1.73633-0.30762-0.81348-0.30762-1.70898 0-0.89551 0.32129-1.69531 0.35205-0.89551 1.02881-1.57227 0.68018-0.68018 1.57568-1.0459 0.19482-0.08203 0.48877-0.16406 0.29395-0.08545 0.39307-0.08545 0.04102 0 0.04101 0 0 0-0.01367 0.04102z"
+                  fill="#F5F5F5"
+                ></path>
+              </svg>
+              <div
+                data-pencil-name="Dark"
+                class="text-[14px]/[normal] box-border text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-medium text-left [white-space:nowrap]"
+              >
+                Dark
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        data-pencil-name="Chat"
+        class="box-border w-full [flex:1_1_0] flex flex-col gap-[10px] p-[16px_0px] justify-start items-center"
+      >
+        <div
+          data-pencil-name="Conversation"
+          class="box-border w-[960px] h-fit shrink-0 flex flex-col gap-[10px] justify-start items-start"
+        >
+          <div
+            data-pencil-name="User Message Row"
+            class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-end items-start"
+          >
+            <div
+              data-pencil-name="User Message"
+              class="box-border w-[760px] shrink-0 h-fit flex flex-row gap-0 p-[12px_16px] justify-start items-start bg-[#2E2E2E]"
+            >
+              <div
+                data-pencil-name="User Text"
+                class="text-[14px]/[21px] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+              >
+                Build a bill splitter with editable subtotal, tip percentage, and number of people.
+                Show the total and each person's share, validate inputs, and allocate rounding cents
+                so all shares sum to the exact total. Do not imply that any payment is sent.
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Bill Splitter Card"
+            class="box-border w-full h-fit shrink-0 [box-shadow:0px_1px_1.75px_#0000000d] flex flex-col gap-0 justify-start items-start bg-[#1F1F1F] [border:1px_solid_#2E2E2E]"
+          >
+            <div
+              data-pencil-name="Card Header"
+              class="box-border w-full h-fit shrink-0 flex flex-col gap-[8px] p-[20px_24px_4px_24px] justify-center items-start"
+            >
+              <div
+                data-pencil-name="Card Title"
+                class="text-[20px]/[normal] box-border text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+              >
+                Bill splitter
+              </div>
+              <div
+                data-pencil-name="Card Description"
+                class="text-[14px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                Enter the bill details to calculate an even split. No payment is sent.
+              </div>
+            </div>
+            <div
+              data-pencil-name="Card Content"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-[24px] p-[24px] justify-start items-start"
+            >
+              <div
+                data-pencil-name="Inputs"
+                class="box-border w-[260px] shrink-0 h-fit flex flex-col gap-[10px] justify-start items-start"
+              >
+                <div
+                  data-pencil-name="Input Subtotal ($)"
+                  class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] justify-start items-start"
+                >
+                  <div
+                    data-pencil-name="Label Text"
+                    class="box-border w-full h-fit shrink-0 flex flex-row gap-[8px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="Label Text"
+                      class="text-[14px]/[20px] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-medium text-left"
+                    >
+                      Subtotal ($)
+                    </div>
+                  </div>
+                  <div
+                    data-pencil-name="Input"
+                    class="box-border w-full h-[40px] shrink-0 flex flex-row gap-[8px] p-[8px_16px] justify-start items-center bg-[#1F1F1F] [border:1px_solid_#414347]"
+                  >
+                    <div
+                      data-pencil-name="Input Value"
+                      class="text-[14px]/[20px] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                    >
+                      80.00
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-pencil-name="Input Tip (%)"
+                  class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] justify-start items-start"
+                >
+                  <div
+                    data-pencil-name="Label Text"
+                    class="box-border w-full h-fit shrink-0 flex flex-row gap-[8px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="Label Text"
+                      class="text-[14px]/[20px] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-medium text-left"
+                    >
+                      Tip (%)
+                    </div>
+                  </div>
+                  <div
+                    data-pencil-name="Input"
+                    class="box-border w-full h-[40px] shrink-0 flex flex-row gap-[8px] p-[8px_16px] justify-start items-center bg-[#1F1F1F] [border:1px_solid_#414347]"
+                  >
+                    <div
+                      data-pencil-name="Input Value"
+                      class="text-[14px]/[20px] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                    >
+                      18
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-pencil-name="Input Number of people"
+                  class="box-border w-full h-fit shrink-0 flex flex-col gap-[6px] justify-start items-start"
+                >
+                  <div
+                    data-pencil-name="Label Text"
+                    class="box-border w-full h-fit shrink-0 flex flex-row gap-[8px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="Label Text"
+                      class="text-[14px]/[20px] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-medium text-left"
+                    >
+                      Number of people
+                    </div>
+                  </div>
+                  <div
+                    data-pencil-name="Input"
+                    class="box-border w-full h-[40px] shrink-0 flex flex-row gap-[8px] p-[8px_16px] justify-start items-center bg-[#1F1F1F] [border:1px_solid_#414347]"
+                  >
+                    <div
+                      data-pencil-name="Input Value"
+                      class="text-[14px]/[20px] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                    >
+                      3
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                data-pencil-name="Results Table"
+                class="box-border [flex:1_1_0] h-fit flex flex-col gap-0 justify-start items-center bg-[#1F1F1F] [border:1px_solid_#2E2E2E]"
+              >
+                <div
+                  data-pencil-name="Row Total with tip"
+                  class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-start items-center [border-width:0px_0px_1px_0px] [border-style:solid] [border-color:#2E2E2E]"
+                >
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="Total with tip"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-semibold text-left"
+                    >
+                      Total with tip
+                    </div>
+                  </div>
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="$94.40"
+                      class="text-[18px]/[normal] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-semibold text-right"
+                    >
+                      $94.40
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-pencil-name="Row Tip amount"
+                  class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-start items-center [border-width:0px_0px_1px_0px] [border-style:solid] [border-color:#2E2E2E]"
+                >
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="Tip amount"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                    >
+                      Tip amount
+                    </div>
+                  </div>
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="$14.40"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-semibold text-right"
+                    >
+                      $14.40
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-pencil-name="Row Each person's share"
+                  class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-start items-center [border-width:0px_0px_1px_0px] [border-style:solid] [border-color:#2E2E2E]"
+                >
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="Each person's share"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                    >
+                      Each person's share
+                    </div>
+                  </div>
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="$31.47 × 2; $31.46 × 1"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-semibold text-right"
+                    >
+                      $31.47 × 2; $31.46 × 1
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-pencil-name="Row Person 1"
+                  class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-start items-center [border-width:0px_0px_1px_0px] [border-style:solid] [border-color:#2E2E2E]"
+                >
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="Person 1"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                    >
+                      Person 1
+                    </div>
+                  </div>
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="$31.47"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-semibold text-right"
+                    >
+                      $31.47
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-pencil-name="Row Person 2"
+                  class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-start items-center [border-width:0px_0px_1px_0px] [border-style:solid] [border-color:#2E2E2E]"
+                >
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="Person 2"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                    >
+                      Person 2
+                    </div>
+                  </div>
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="$31.47"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-semibold text-right"
+                    >
+                      $31.47
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-pencil-name="Row Person 3"
+                  class="box-border w-full h-fit shrink-0 flex flex-row gap-0 justify-start items-center [border-width:0px_0px_1px_0px] [border-style:solid] [border-color:#2E2E2E]"
+                >
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="Person 3"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                    >
+                      Person 3
+                    </div>
+                  </div>
+                  <div
+                    data-pencil-name="Cell"
+                    class="box-border [flex:1_1_0] h-fit flex flex-row gap-[8px] p-[12px] justify-start items-center"
+                  >
+                    <div
+                      data-pencil-name="$31.46"
+                      class="text-[14px]/[normal] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-semibold text-right"
+                    >
+                      $31.46
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              data-pencil-name="Card Actions"
+              class="box-border w-full h-fit shrink-0 flex flex-row gap-[8px] p-[4px_24px_20px_24px] justify-start items-center"
+            >
+              <div
+                data-pencil-name="Reset Button"
+                class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] p-[10px_16px] justify-center items-center [border:1px_solid_#414347]"
+              >
+                <div
+                  data-pencil-name="Leading Icon"
+                  class="box-border w-[20px] shrink-0 h-[20px] relative"
+                >
+                  <svg
+                    data-icon-name="rotate-ccw"
+                    data-icon-set="lucide"
+                    viewBox="0 0 13.99993896484375 14"
+                    preserveAspectRatio="xMidYMid meet"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="box-border w-[16px] h-[16px] absolute left-[2px] top-[2px] [z-index:0]"
+                  >
+                    <path
+                      d="M1.59619 1.18945q-0.25293 0.08545-0.37939 0.30762l-0.04102 0.08545 0 3.26074 0.04102 0.07178q0.09912 0.19482 0.29394 0.28027l0.08545 0.04102 2.81299 0.01367q0.32129-0.01367 0.43408-0.02734 0.07178-0.01367 0.15381-0.07178l0.01367-0.01367q0.1709-0.12646 0.21875-0.31446 0.04785-0.18799-0.03076-0.37597-0.0752-0.19141-0.25635-0.28711-0.08545-0.05811-0.2666-0.07178-0.18115-0.01367-0.76904-0.01367l-0.7417 0 0.23584-0.22559q0.7417-0.72803 1.58252-1.09033 0.96729-0.42041 2.03027-0.42041 0.93994 0 1.76367 0.34863 1.17578 0.49219 1.93799 1.49366 0.76563 1.00146 0.91944 2.2456 0.02734 0.22559 0.02734 0.56738 0 0.3418-0.02734 0.56739-0.15381 1.2749-0.93995 2.29004-0.78271 1.01172-1.97216 1.49023-0.81348 0.32129-1.72266 0.32129-0.28027 0-0.46143-0.01367-0.18115-0.01367-0.46142-0.07178-0.88184-0.18115-1.64746-0.68359-0.76221-0.50586-1.28174-1.2544-0.51611-0.74854-0.71094-1.64404-0.08545-0.44775-0.09228-0.77588-0.00684-0.33154-0.0752-0.47168-0.08545-0.16748-0.2666-0.2666-0.05811-0.02734-0.09912-0.04102-0.04102-0.01367-0.15381-0.01367-0.11279 0-0.15381 0.01367-0.04102 0.01367-0.09912 0.04102-0.18115 0.09912-0.28027 0.2666-0.06836 0.15381-0.03418 0.65283 0.03418 0.49561 0.14697 0.9878 0.29395 1.18945 1.03564 2.15673 0.7417 0.96387 1.80469 1.5586 1.06641 0.59473 2.29688 0.70752 0.18457 0.01367 0.5332 0.01367 0.34863 0 0.5332-0.01367 1.38428-0.12646 2.54639-0.86817 1.14844-0.71436 1.86279-1.86279 0.7417-1.16211 0.86817-2.54639 0.01367-0.18457 0.01367-0.5332 0-0.34863-0.01367-0.5332-0.14014-1.52441-1.01514-2.78223-0.875-1.26123-2.2627-1.93457-0.58789-0.28027-1.14843-0.42041-0.55713-0.14014-1.2168-0.15381-1.09033-0.02734-2.1123 0.30762-0.71436 0.23926-1.30225 0.60498-0.58789 0.3623-1.14844 0.90918l-0.28027 0.26318 0-1.67822-0.04102-0.08545q-0.09912-0.18115-0.28027-0.2666-0.08545-0.04102-0.22559-0.04785-0.14014-0.00684-0.18115 0.00683z"
+                      fill="#F5F5F5"
+                    ></path>
+                  </svg>
+                </div>
+                <div
+                  data-pencil-name="Button"
+                  class="text-[14px]/[20px] box-border text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-medium text-center [white-space:nowrap]"
+                >
+                  Reset
+                </div>
+              </div>
+              <div
+                data-pencil-name="Summary"
+                class="text-[14px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                Shares sum to $94.40 across 3 people. Tip is calculated on subtotal; leftover cents
+                go to the first people.
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Assistant Reply"
+            class="box-border w-full h-fit shrink-0 flex flex-col gap-[8px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Reply Text"
+              class="text-[15px]/[23px] box-border w-full text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+            >
+              The bill splitter is ready. It calculates the tip on the subtotal, rounds amounts to
+              cents, and assigns any leftover cent(s) to the first people so the shares total
+              exactly. It only calculates a split—no payment is sent.
+            </div>
+            <div
+              data-pencil-name="Model Chips"
+              class="box-border w-fit h-fit shrink-0 flex flex-row gap-[8px] justify-start items-center"
+            >
+              <svg
+                data-pencil-name="Sparkle"
+                data-icon-name="sparkles"
+                data-icon-set="lucide"
+                viewBox="0 0 13.99993896484375 14"
+                preserveAspectRatio="xMidYMid meet"
+                xmlns="http://www.w3.org/2000/svg"
+                class="box-border w-[14px] shrink-0 h-[14px]"
+              >
+                <path
+                  d="M6.84619 0.58789q-0.28027 0.04102-0.54687 0.22559-0.29395 0.2085-0.40674 0.57422-0.02734 0.08203-0.3418 1.75683-0.31445 1.67139-0.35889 1.76367-0.04102 0.08887-0.10937 0.16065-0.07178 0.08203-0.15381 0.11279-0.11279 0.04102-0.4751 0.12305l-1.28857 0.23926q-1.68164 0.32129-1.77734 0.34863-0.23926 0.07178-0.44434 0.27002-0.20166 0.19482-0.29395 0.44092-0.08887 0.24268-0.06152 0.50244 0.02734 0.25635 0.16748 0.4956 0.09912 0.16748 0.27344 0.30762 0.17432 0.14014 0.35889 0.19824 0.0957 0.02734 1.76367 0.34863l1.28515 0.25293q0.37939 0.06836 0.50586 0.10938 0.08203 0.04443 0.15381 0.11279 0.05469 0.08545 0.09912 0.16748 0.04102 0.12646 0.10938 0.50586l0.23926 1.24414q0.32129 1.68164 0.34863 1.76367 0.15381 0.46484 0.58789 0.67335 0.2666 0.14014 0.51953 0.14013 0.25293 0 0.51953-0.14013 0.43408-0.2085 0.58789-0.67335 0.02734-0.08203 0.3418-1.74658 0.31445-1.66797 0.3418-1.72265 0.02734-0.11279 0.12646-0.2085 0.09912-0.09912 0.21191-0.14355 0.06836-0.02734 1.73291-0.3418 1.66797-0.31445 1.75-0.3418 0.46484-0.15381 0.67335-0.58789 0.2666-0.51953 0-1.03906-0.09912-0.2085-0.28028-0.36231-0.18115-0.15381-0.39307-0.22558-0.0957-0.02734-1.77734-0.34863l-1.23047-0.23926q-0.37939-0.06836-0.50586-0.10938-0.0957-0.03076-0.15381-0.08545-0.10938-0.11279-0.1538-0.23925-0.02734-0.06836-0.3418-1.73291-0.31445-1.66797-0.3418-1.75-0.14014-0.46484-0.60498-0.68702-0.14014-0.07178-0.31445-0.09912-0.17432-0.02734-0.3418-0.01367z m4.73047 0.01367q-0.12305 0.01367-0.24268 0.09912-0.11963 0.08203-0.1914 0.19483-0.04102 0.08545-0.05469 0.20508-0.01367 0.11621-0.01367 0.35546l0 0.29395-0.36572 0q-0.26318 0.01367-0.32813 0.02051-0.06152 0.00684-0.1333 0.03418-0.2666 0.12646-0.31445 0.42041-0.04785 0.29395 0.14697 0.50586 0.08545 0.08203 0.18115 0.14013 0.08545 0.02734 0.14697 0.03418 0.06494 0.00684 0.31788 0.02051l0.34863 0 0 0.34863q0.01367 0.25293 0.02051 0.31788 0.00683 0.06152 0.03418 0.14697 0.05811 0.0957 0.14013 0.18115 0.21191 0.19482 0.50586 0.14697 0.29395-0.04785 0.42041-0.31445 0.02734-0.08545 0.03418-0.14014 0.00684-0.05811 0.02051-0.32129l0-0.36572 0.29395 0q0.32129 0 0.45458-0.03418 0.1333-0.03418 0.25293-0.15381 0.11963-0.11963 0.15381-0.31445 0.03418-0.19824-0.04785-0.35205-0.04443-0.08203-0.12305-0.15039-0.0752-0.07178-0.1538-0.10596-0.07519-0.0376-0.14014-0.04443-0.06152-0.00684-0.32813-0.02051l-0.3623 0 0-0.34863q0-0.23926-0.00684-0.30762-0.00684-0.07178-0.03418-0.12646-0.08545-0.21191-0.25293-0.30762-0.16748-0.09912-0.37939-0.05811z m-4.26904 2.7583q0.23926 1.26123 0.29394 1.55518 0.05811 0.29395 0.1128 0.42041 0.12646 0.30762 0.38281 0.56738 0.25977 0.25635 0.56738 0.38281 0.12646 0.05469 0.41358 0.1128 0.28711 0.05469 1.54833 0.29394 1.56885 0.29395 1.57569 0.30762 0.00684 0.01367-1.60303 0.31445-1.60986 0.30078-1.72266 0.32813-0.39307 0.09912-0.72119 0.40674-0.32813 0.30762-0.46826 0.70068-0.04443 0.09912-0.09912 0.43408l-0.32129 1.63721q-0.25293 1.37402-0.2666 1.37402-0.01367 0-0.30762-1.55517-0.23926-1.2749-0.29736-1.56202-0.05469-0.28711-0.10938-0.41357-0.09912-0.23584-0.30078-0.46484-0.20166-0.23242-0.41357-0.35889-0.14014-0.09912-0.2666-0.14014-0.16748-0.04102-0.57422-0.12646l-1.28516-0.25293q-1.6543-0.30762-1.64062-0.32129 0.01367-0.01367 1.60986-0.30762l1.51416-0.29394q0.25293-0.05811 0.38965-0.1128 0.29395-0.11279 0.56738-0.37597 0.27344-0.2666 0.3999-0.57422 0.05469-0.12646 0.10938-0.41358 0.05811-0.28711 0.29736-1.56201 0.29395-1.55518 0.30762-1.55517 0.01367 0 0.30762 1.55517z m-5.33203 6.59326q-0.31104 0.07178-0.57764 0.23926-0.26318 0.16748-0.46143 0.42041-0.34863 0.4751-0.34863 1.05615 0 0.58105 0.3418 1.04249 0.34521 0.46143 0.91943 0.6289 0.64258 0.18457 1.25781-0.10937 0.32471-0.15381 0.56055-0.44092 0.23926-0.28711 0.35205-0.65283 0.02734-0.11279 0.03418-0.18116 0.00684-0.06836 0.02051-0.28027 0-0.25293-0.02051-0.3623-0.02051-0.11279-0.10596-0.32471-0.15381-0.36231-0.46826-0.63574-0.31445-0.27344-0.70752-0.38623-0.15381-0.02734-0.3999-0.03418-0.24268-0.00684-0.39648 0.0205z m0.60156 1.18946q0.24951 0.11279 0.31787 0.38623 0.07178 0.27344-0.0957 0.48193-0.12646 0.15381-0.29395 0.21192-0.16748 0.05469-0.33496 0-0.25293-0.07178-0.37939-0.33497-0.04102-0.09912-0.03418-0.23242 0.00684-0.1333 0.04785-0.23242 0.09912-0.22217 0.32129-0.29736 0.22559-0.07861 0.45117 0.01709z"
+                  fill="#A0A6B2"
+                ></path>
+              </svg>
+              <div
+                data-pencil-name="AI Model Chip"
+                class="box-border w-fit shrink-0 h-fit flex flex-row gap-[10px] p-[3px_8px] justify-center items-center bg-[#3C4352]"
+              >
+                <div
+                  data-pencil-name="Text"
+                  class="text-[12px]/[14px] box-border text-[#B2CCFF] font-[Roboto,system-ui,sans-serif] font-medium text-left [white-space:nowrap]"
+                >
+                  AI · claude-sonnet-5.5
+                </div>
+              </div>
+              <div
+                data-pencil-name="Decision Model Chip"
+                class="box-border w-fit shrink-0 h-fit flex flex-row gap-[10px] p-[3px_8px] justify-center items-center bg-[#414347]"
+              >
+                <div
+                  data-pencil-name="Text"
+                  class="text-[12px]/[14px] box-border text-[#FFFFFF] font-[Roboto,system-ui,sans-serif] font-medium text-left [white-space:nowrap]"
+                >
+                  Decision · Microsoft-Decision-1
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          data-pencil-name="Composer"
+          class="box-border w-[960px] h-fit shrink-0 flex flex-col gap-[8px] justify-start items-center"
+        >
+          <div
+            data-pencil-name="Prompts Label"
+            class="text-[12px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+          >
+            Try these prompts
+          </div>
+          <div
+            data-pencil-name="Suggestion Chips"
+            class="box-border w-fit h-fit shrink-0 flex flex-row gap-[8px] justify-start items-start"
+          >
+            <div
+              data-pencil-name="Chip Pitch, Roll &amp; Yaw"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] p-[6px_14px] justify-center items-center [border:1px_solid_#414347]"
+            >
+              <div
+                data-pencil-name="Button"
+                class="text-[13px]/[19px] box-border text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-center [white-space:nowrap]"
+              >
+                Pitch, Roll &amp; Yaw
+              </div>
+            </div>
+            <div
+              data-pencil-name="Chip Animate a coastal trip"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] p-[6px_14px] justify-center items-center [border:1px_solid_#414347]"
+            >
+              <div
+                data-pencil-name="Button"
+                class="text-[13px]/[19px] box-border text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-center [white-space:nowrap]"
+              >
+                Animate a coastal trip
+              </div>
+            </div>
+            <div
+              data-pencil-name="Chip Find your kind of weekend"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] p-[6px_14px] justify-center items-center [border:1px_solid_#414347]"
+            >
+              <div
+                data-pencil-name="Button"
+                class="text-[13px]/[19px] box-border text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-center [white-space:nowrap]"
+              >
+                Find your kind of weekend
+              </div>
+            </div>
+            <div
+              data-pencil-name="Chip Split the bill fairly"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] p-[6px_14px] justify-center items-center [border:1px_solid_#414347]"
+            >
+              <div
+                data-pencil-name="Button"
+                class="text-[13px]/[19px] box-border text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-center [white-space:nowrap]"
+              >
+                Split the bill fairly
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Model Selectors"
+            class="box-border w-full h-fit shrink-0 flex flex-row gap-[20px] justify-start items-center"
+          >
+            <div
+              data-pencil-name="AI Model Selector"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[10px] justify-start items-center"
+            >
+              <div
+                data-pencil-name="AI Model"
+                class="text-[13px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                AI Model
+              </div>
+              <div
+                data-pencil-name="AI Model Select"
+                class="box-border w-[230px] shrink-0 h-fit flex flex-col gap-[6px] justify-start items-start"
+              >
+                <div
+                  data-pencil-name="Select Trigger"
+                  class="box-border w-full h-[36px] shrink-0 flex flex-row gap-[10px] p-[8px_16px] justify-between items-center bg-[#1F1F1F] [border:1px_solid_#414347]"
+                >
+                  <div
+                    data-pencil-name="Select option"
+                    class="text-[14px]/[20px] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                  >
+                    claude-sonnet-5.5
+                  </div>
+                  <svg
+                    data-icon-name="chevron-down"
+                    data-icon-set="lucide"
+                    viewBox="0 0 13.99993896484375 14"
+                    preserveAspectRatio="xMidYMid meet"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="box-border w-[16px] shrink-0 h-[16px]"
+                  >
+                    <path
+                      d="M3.34619 4.68945q-0.25293 0.08545-0.37939 0.30762-0.04102 0.08545-0.04102 0.25293 0 0.16748 0.04785 0.25977 0.05127 0.08887 1.8628 1.9038 1.81494 1.81152 1.9038 1.8628 0.09229 0.04785 0.25977 0.04785 0.16748 0 0.25635-0.04785 0.09229-0.05127 1.90381-1.8628 1.81494-1.81494 1.86279-1.9038 0.05127-0.09229 0.05127-0.25977 0-0.16748-0.04102-0.25293-0.09912-0.16748-0.28027-0.2666-0.05811-0.02734-0.09912-0.04102-0.04102-0.01367-0.15381-0.01367-0.11279 0-0.15381 0.01367-0.04101 0.01367-0.11279 0.04102-0.09912 0.05811-1.66455 1.62695l-1.56885 1.56543-2.82666-2.81299q-0.31104-0.29395-0.42041-0.37939-0.08545-0.05469-0.19824-0.05469l-0.02735 0q-0.14014 0-0.18115 0.01367z"
+                      fill="#A0A6B2"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div
+              data-pencil-name="Decision Model Selector"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[10px] justify-start items-center"
+            >
+              <div
+                data-pencil-name="Decision Model"
+                class="text-[13px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+              >
+                Decision Model
+              </div>
+              <div
+                data-pencil-name="Decision Model Select"
+                class="box-border w-[230px] shrink-0 h-fit flex flex-col gap-[6px] justify-start items-start"
+              >
+                <div
+                  data-pencil-name="Select Trigger"
+                  class="box-border w-full h-[36px] shrink-0 flex flex-row gap-[10px] p-[8px_16px] justify-between items-center bg-[#1F1F1F] [border:1px_solid_#414347]"
+                >
+                  <div
+                    data-pencil-name="Select option"
+                    class="text-[14px]/[20px] box-border [flex:1_1_0] text-[#F5F5F5] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+                  >
+                    Microsoft-Decision-1
+                  </div>
+                  <svg
+                    data-icon-name="chevron-down"
+                    data-icon-set="lucide"
+                    viewBox="0 0 13.99993896484375 14"
+                    preserveAspectRatio="xMidYMid meet"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="box-border w-[16px] shrink-0 h-[16px]"
+                  >
+                    <path
+                      d="M3.34619 4.68945q-0.25293 0.08545-0.37939 0.30762-0.04102 0.08545-0.04102 0.25293 0 0.16748 0.04785 0.25977 0.05127 0.08887 1.8628 1.9038 1.81494 1.81152 1.9038 1.8628 0.09229 0.04785 0.25977 0.04785 0.16748 0 0.25635-0.04785 0.09229-0.05127 1.90381-1.8628 1.81494-1.81494 1.86279-1.9038 0.05127-0.09229 0.05127-0.25977 0-0.16748-0.04102-0.25293-0.09912-0.16748-0.28027-0.2666-0.05811-0.02734-0.09912-0.04102-0.04102-0.01367-0.15381-0.01367-0.11279 0-0.15381 0.01367-0.04101 0.01367-0.11279 0.04102-0.09912 0.05811-1.66455 1.62695l-1.56885 1.56543-2.82666-2.81299q-0.31104-0.29395-0.42041-0.37939-0.08545-0.05469-0.19824-0.05469l-0.02735 0q-0.14014 0-0.18115 0.01367z"
+                      fill="#A0A6B2"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Prompt Input"
+            class="box-border w-full h-fit shrink-0 flex flex-row gap-[12px] p-[10px_12px_10px_16px] justify-start items-center bg-[#1F1F1F] [border:1px_solid_#414347]"
+          >
+            <svg
+              data-pencil-name="Add"
+              data-icon-name="plus"
+              data-icon-set="lucide"
+              viewBox="0 0 13.99993896484375 14"
+              preserveAspectRatio="xMidYMid meet"
+              xmlns="http://www.w3.org/2000/svg"
+              class="box-border w-[20px] shrink-0 h-[20px]"
+            >
+              <path
+                d="M6.90088 2.35156q-0.0957 0.01367-0.17432 0.05127-0.0752 0.03418-0.15381 0.12647-0.0752 0.08887-0.11279 0.16748-0.03418 0.0752-0.03418 0.32812l0 3.40088-3.66748 0-0.08545 0.04102q-0.22217 0.11279-0.30078 0.33838-0.0752 0.22217 0.00684 0.43408 0.05811 0.0957 0.14013 0.18115 0.08545 0.08203 0.16748 0.11963 0.08545 0.03418 0.33838 0.03418l3.40088 0 0 3.40088q0 0.25293 0.03418 0.33838 0.0376 0.08203 0.11963 0.16748 0.08545 0.08203 0.18799 0.1333 0.10596 0.04785 0.23242 0.04785 0.12646 0 0.229-0.04785 0.10596-0.05127 0.18799-0.1333 0.08545-0.08545 0.11963-0.16748 0.0376-0.08545 0.0376-0.33838l0-3.40088 3.40088 0q0.25293 0 0.33496-0.03418 0.08545-0.0376 0.16748-0.11963 0.08545-0.08545 0.1333-0.18799 0.05127-0.10596 0.05127-0.23242 0-0.12646-0.04102-0.23926-0.09912-0.19482-0.29394-0.29394l-0.08545-0.04102-3.66748 0 0-3.38721q0-0.2666-0.02734-0.32128-0.07178-0.19824-0.25293-0.30079-0.18115-0.10596-0.39307-0.06494z"
+                fill="#A0A6B2"
+              ></path>
+            </svg>
+            <div
+              data-pencil-name="Placeholder"
+              class="text-[16px]/[normal] box-border [flex:1_1_0] text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left"
+            >
+              Ask anything…
+            </div>
+            <div
+              data-pencil-name="Send"
+              class="box-border w-fit shrink-0 h-fit flex flex-row gap-[6px] p-[10px] justify-center items-center bg-[#0F5FFE]"
+            >
+              <div
+                data-pencil-name="Leading Icon"
+                class="box-border w-[20px] shrink-0 h-[20px] relative"
+              >
+                <svg
+                  data-icon-name="arrow-up"
+                  data-icon-set="lucide"
+                  viewBox="0 0 13.99993896484375 14"
+                  preserveAspectRatio="xMidYMid meet"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="box-border w-[16px] h-[16px] absolute left-[2px] top-[2px] [z-index:0]"
+                >
+                  <path
+                    d="M6.84619 2.35156q-0.08545 0.01367-0.15723 0.06494-0.06836 0.04785-2.16699 2.14649l-1.66455 1.69531q-0.36572 0.3623-0.46484 0.50244-0.05469 0.08545-0.05469 0.19824l0 0.04102q0 0.23926 0.18115 0.42041 0.11279 0.11279 0.28028 0.14697 0.16748 0.03418 0.32129-0.02051 0.08545-0.02734 0.32128-0.25976 0.23926-0.23242 1.37403-1.36377 1.58252-1.58252 1.59619-1.58252 0.01367 0 0.01367 3.42822l0 3.01123q0 0.44775 0.03418 0.53321 0.0376 0.08203 0.11963 0.16748 0.08545 0.08203 0.18799 0.1333 0.10596 0.04785 0.23242 0.04785 0.12646 0 0.229-0.04785 0.10596-0.05127 0.18799-0.1333 0.08545-0.08545 0.11963-0.16748 0.0376-0.08545 0.0376-0.53321l0-3.01123q0-3.42822 0.01367-3.42822 0.01367 0 1.59619 1.58252 1.13477 1.13135 1.37061 1.36377 0.23926 0.23242 0.32471 0.25976 0.15381 0.05469 0.32128 0.02051 0.16748-0.03418 0.28028-0.14697 0.18115-0.18115 0.18115-0.42041l0-0.04102q0-0.11279-0.05469-0.19824-0.09912-0.14014-0.46484-0.51611l-1.67822-1.68164q-2.10205-2.1123-2.17041-2.14649-0.06836-0.0376-0.16065-0.06494-0.09229-0.02734-0.14014-0.02734-0.04785 0-0.14697 0.02734z"
+                    fill="#F5F5F5"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            data-pencil-name="Disclaimer"
+            class="text-[12px]/[normal] box-border text-[#A0A6B2] font-[Roboto,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+          >
+            AI can make mistakes. Check important details.
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
