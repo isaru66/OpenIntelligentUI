@@ -28,9 +28,35 @@ build/
 *.tsbuildinfo
 
 # Environment
-.env
-.env*.local
-.env.production
+**/.env*
+**/*.env
+**/.azure
+**/.terraform
+**/*.tfstate*
+**/*.tfplan*
+**/*.tfvars*
+**/*.plan
+**/*.plan.*
+**/tfplan*
+**/tfstate*
+**/plan.json
+**/terraform-plan*
+**/secrets*
+**/credentials*
+**/service-account*
+**/service_account*
+# This is application code, not a credential store.
+!apps/agent/src/credentials.py
+**/*.key
+**/*.pfx
+**/*.p12
+**/azureProfile.json
+**/accessTokens.json
+**/msal_token_cache*
+**/.aws
+**/.ssh
+**/.kube
+**/kubeconfig
 
 # Logs
 logs
@@ -61,6 +87,9 @@ Thumbs.db
 # Documentation
 *.md
 !README.md
+!apps/agent/skills/advanced-visualization/SKILL.md
+!apps/agent/skills/master-playbook/SKILL.md
+!apps/agent/skills/svg-diagrams/SKILL.md
 
 # Turbo
 .turbo

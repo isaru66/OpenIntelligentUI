@@ -8,7 +8,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
 # Copy package files (every workspace manifest the app depends on must be
 # present or pnpm install fails to resolve workspace:* dependencies)
@@ -16,6 +16,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/app/package.json ./apps/app/
 COPY packages/design-system/package.json ./packages/design-system/
 COPY turbo.json ./
+COPY patches ./patches
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
@@ -33,7 +34,7 @@ COPY --from=deps /app/packages/design-system/node_modules ./packages/design-syst
 COPY . .
 
 # Enable pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
 # Build the Next.js app and its workspace dependencies (turbo's build task
 # dependsOn ^build, so @repo/design-system dist/ is produced first)
