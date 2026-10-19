@@ -2,6 +2,21 @@
 
 This guide describes how to deploy Open Generative UI; it does not establish that a release is deployed. Keep existing service names and URLs intact when changing visible product branding.
 
+## Azure Container Apps
+
+The [Azure infrastructure guide](../infra/README.md) describes the Terraform/azd
+deployment: public HTTPS web app, internal HTTPS agent, ACR remote builds owned by
+Terraform, and a new Foundry account/project with chat and Decision deployments.
+The agent uses managed identity for Foundry and an ACA secret for the existing
+WebIQ API key. Application source is unchanged. This is a provision-only azd
+project: use `azd provision` or `azd up`, not `azd deploy`.
+
+Subscription, application/Foundry regions, and the exact chat model version are
+deployment inputs. The initial workflow uses local state, which contains the
+WebIQ key and must be protected. Follow the infrastructure guide's WSL setup,
+secret-handling precautions, and live acceptance steps before calling it a
+deployed release.
+
 ## Render blueprint
 
 The repository's `render.yaml` defines two services:

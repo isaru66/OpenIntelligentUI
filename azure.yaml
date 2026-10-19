@@ -1,0 +1,7 @@
+name: open-generative-ui
+infra:
+  provider: terraform
+  path: infra
+workflows:
+  up:
+    - azd: provision

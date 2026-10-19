@@ -12,6 +12,8 @@ node_modules
 
 # testing
 coverage
+__pycache__/
+*.py[cod]
 
 # next.js
 .next/
@@ -66,3 +68,17 @@ bun.lockb
 
 # References
 .references
+
+# Azure deployment environments and Terraform artifacts (may contain secrets)
+.azure/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.*
+*.tfvars
+*.tfvars.*
+!infra/main.tfvars.json
+crash.log
+crash.*.log
+*.tfbackend
