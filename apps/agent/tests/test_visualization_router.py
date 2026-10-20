@@ -102,9 +102,15 @@ def test_route_filters_renderers_preserving_data_tools(choice, allowed):
     assert ("render_a2ui" in names) == (choice == "table")
     assert "barChart" not in names and "pieChart" not in names
     if choice == "map":
-        assert "basemap.nationalmap.gov" in result.system_message.content
-        assert "USGS attribution" in result.system_message.content
-        assert "coverage limits" in result.system_message.content
+        content = result.system_message.content
+        assert "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}" in content
+        assert "mt0" in content and "maxZoom 20" in content
+        assert "Map data © Google" in content
+        assert "https://www.google.com/maps" in content
+        assert "worldwide" in content
+        assert "role=status" in content
+        assert "basemap.nationalmap.gov" not in content
+        assert "no prefetch" in content.lower()
 
 
 def test_default_azure_foundry_router_options_and_url(monkeypatch):

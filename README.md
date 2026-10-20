@@ -32,7 +32,7 @@ https://github.com/user-attachments/assets/eb1666c1-e177-410b-96eb-9eb5c5534d95
 
 </div>
 
-_The 54-second launch film: ask, explore a 3D explanation, compare options, use a calculator, and follow a coastal itinerary. These are rendered launch scenes; the app runs the agent for each request._
+_The 54-second launch film: ask, explore a 3D explanation, compare options, use a calculator, and follow an Ayutthaya itinerary. These are rendered launch scenes; the app runs the agent for each request._
 
 ## Overview
 
@@ -98,7 +98,7 @@ _Bill splitter · 5 seconds._
 
 ### Follow a trip on the map
 
-Explore a coastal itinerary with numbered pins and destination photos. The app uses live USGS tiles, credits its photos, and lets you pause, replay, or select a stop. Connections illustrate the itinerary; they are not verified driving directions.
+Explore a one-day Ayutthaya itinerary with numbered pins and destination photos. The app uses Leaflet with worldwide live Google Maps tiles (attribution "Map data © Google"), credits its photos, and lets you pause, replay, or select a stop. Connections illustrate the itinerary; they are not verified driving directions.
 
 <div align="center">
 
@@ -110,7 +110,7 @@ https://github.com/user-attachments/assets/2dd65441-e0e7-4813-891f-9bd476e873d6
 
 </div>
 
-_Coastal map · 4 seconds._
+_Ayutthaya map · 4 seconds._
 
 <details>
 <summary>Scene gallery</summary>
@@ -123,13 +123,13 @@ _Coastal map · 4 seconds._
 | Interactive tools | Maps |
 | --- | --- |
 | ![Bill splitter recalculating the share per person](https://github.com/user-attachments/assets/dea3c40b-025c-4d50-8fef-b14c50e3ca62) | ![California coastal itinerary with numbered map pins and photo cards](https://github.com/user-attachments/assets/098d4aad-95a9-4229-aae6-2de38f1eaa69) |
-| Change the group size and tip; the calculation updates. | Follow a coastal itinerary with map pins and destination photos. |
+| Change the group size and tip; the calculation updates. | Follow an Ayutthaya itinerary with map pins and destination photos. |
 
 </details>
 
 ## Try it
 
-- **Animate a coastal trip** — a real USGS map with numbered pins, credited destination photos, and a six-second pin-drop sequence. Pause, replay, or select a stop. Connections are illustrative, not verified driving directions.
+- **One Day in Ayutthaya** — a Leaflet map with worldwide live Google Maps tiles (attribution "Map data © Google"), numbered pins, credited destination photos, and a six-second pin-drop sequence. Pause, replay, or select a stop. Connections are illustrative, not verified driving directions.
 - **Pitch, Roll & Yaw** — rotate a 3D airplane with labeled axes, angle controls, smooth demonstrations, and reset.
 - **Find your kind of weekend** — compare trip ideas and adjust your preferences.
 - **Split the bill fairly** — change the total, tip, and group size in a working calculator.
