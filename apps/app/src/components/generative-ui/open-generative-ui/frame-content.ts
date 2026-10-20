@@ -20,7 +20,7 @@ const OVERFLOW_HIDDEN_STYLE_TAG =
 // advanced-visualization skill ("CSP-enforced"). 'unsafe-inline' covers the
 // websandbox bootstrap and sandbox.run-injected scripts; script-src and
 // connect-src are restricted to the four CDN origins so generated code cannot
-// load from arbitrary origins. Map images may use the explicit USGS tile host.
+// load from arbitrary origins. Map images may use explicit Google/USGS tile hosts.
 export const CSP_META_TAG = `<meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'unsafe-inline' 'unsafe-eval'
@@ -29,7 +29,7 @@ export const CSP_META_TAG = `<meta http-equiv="Content-Security-Policy" content=
       https://cdn.jsdelivr.net
       https://unpkg.com;
     style-src 'unsafe-inline';
-    img-src 'self' data: blob: https://basemap.nationalmap.gov https://upload.wikimedia.org https://thumb.wikimedia.org;
+    img-src 'self' data: blob: https://basemap.nationalmap.gov https://mt0.google.com https://mt1.google.com https://mt2.google.com https://mt3.google.com https://mts0.google.com https://mts1.google.com https://mts2.google.com https://mts3.google.com https://maps.googleapis.com https://maps.gstatic.com https://upload.wikimedia.org https://thumb.wikimedia.org;
     font-src 'self' data:;
     connect-src 'self'
       https://cdnjs.cloudflare.com

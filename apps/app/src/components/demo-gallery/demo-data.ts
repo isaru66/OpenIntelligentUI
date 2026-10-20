@@ -21,12 +21,12 @@ export const DEMO_EXAMPLES: DemoItem[] = [
   },
   {
     id: "map",
-    title: "Animate a coastal trip",
+    title: "One Day in Ayutthaya",
     category: "Understand",
     emoji: "⌖",
-    description: "Select a landmark and explore its surroundings.",
+    description: "Pin a heritage day trip on a worldwide map.",
     prompt:
-      "Plan an illustrative four-day coastal trip from San Francisco to Los Angeles, stopping at Half Moon Bay, Santa Cruz, Monterey, and Santa Barbara. Show a real map with numbered pins and photo cards. Pin the numbered dots onto the map one by one over 6 seconds: each dot drops gently into place with a small spring settle, then stays. Reveal connecting segments behind the pins and highlight the corresponding card. Keep the map camera still; do not animate a traveler along the route. Include pause, replay and clickable stop cards. Use live USGS tiles and sourced photos; label the connecting line as an itinerary sketch, not verified driving directions.",
+      "Create an illustrative one-day heritage trip in Ayutthaya, Thailand, with four stops: Bang Pa-In Palace (morning), Ayutthaya Historical Park (late morning), Wat Mahathat (afternoon), and Wat Chaiwatthanaram (late afternoon / sunset). Show a real interactive map with numbered pins and sourced photo cards. Animate pins 1 to 4 sequentially over 6 seconds: each numbered dot drops gently with a subtle spring settle, then stays fixed. As each stop appears, reveal the next connecting segment behind the pins, highlight the corresponding photo card, and keep previous pins and segments visible. Keep the map camera completely still; no traveler or car moving along the route. Include Pause and Replay. Clicking any pin or card selects that stop, highlights both, and shows the photo, name, suggested time of day, and a short description. Use live Google Maps tiles and sourced photographs (not generated imagery). Draw a subtle connecting line labeled \"Itinerary sketch\", not verified driving directions. Use a polished Thai heritage style: terracotta brick, muted gold, ivory, temple-stone gray, and river green. It should feel like an elegant \"One Day in Ayutthaya\" travel story, not a navigation app.",
   },
   {
     id: "bicycle",

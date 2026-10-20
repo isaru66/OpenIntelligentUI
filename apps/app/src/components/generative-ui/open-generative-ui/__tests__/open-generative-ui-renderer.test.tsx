@@ -298,6 +298,22 @@ describe("OpenGenUIActivityRenderer", () => {
     }
     const imgSrc = csp.match(/img-src[\s\S]*?;/)![0];
     expect(imgSrc).toContain("https://basemap.nationalmap.gov");
+    for (const host of [
+      "https://mt0.google.com",
+      "https://mt1.google.com",
+      "https://mt2.google.com",
+      "https://mt3.google.com",
+      "https://mts0.google.com",
+      "https://mts1.google.com",
+      "https://mts2.google.com",
+      "https://mts3.google.com",
+      "https://maps.googleapis.com",
+      "https://maps.gstatic.com",
+    ]) {
+      expect(imgSrc).toContain(host);
+    }
+    expect(scriptSrc).not.toContain("google.com");
+    expect(connectSrc).not.toContain("google.com");
     expect(scriptSrc).not.toContain("basemap.nationalmap.gov");
     expect(connectSrc).not.toContain("basemap.nationalmap.gov");
     expect(imgSrc).not.toMatch(/https:;|https:\*|\*\./);

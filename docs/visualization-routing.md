@@ -23,7 +23,7 @@ Routing is a model judgment, not a guarantee of the objectively best visualizati
 
 ## Maps and animated itineraries
 
-Maps use Leaflet with live USGS topographic tiles. For trips, `get_trip_stop_images` retrieves Wikipedia destination photos with validated Wikimedia Commons attribution; unavailable photos remain text cards. These images are sourced photographs, not live camera feeds.
+Maps use Leaflet with worldwide live Google Maps tiles (attribution "Map data © Google"); tiles are subject to Google Maps terms of service. For trips, `get_trip_stop_images` retrieves Wikipedia destination photos with validated Wikimedia Commons attribution; unavailable photos remain text cards. These images are sourced photographs, not live camera feeds.
 
 The sandbox and downloaded HTML include `createTripAnimator`. Its default six-second sequence drops numbered pins into place one at a time, reveals connections behind them, and synchronizes destination cards. Pause/resume, replay, manual stop selection, and reduced-motion behavior share the same controller. The map camera stays fixed during playback, and the chat does not auto-scroll to follow the animation.
 
