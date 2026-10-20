@@ -22,7 +22,21 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
+const SKILL_PATH = /^\/skills\/([^/]+)\/skill\.md$/i;
+
+export function getSkillName(name: string, args: unknown): string | null {
+  if (name !== "read_file" || !args || typeof args !== "object") return null;
+  const filePath = (args as { file_path?: unknown }).file_path;
+  if (typeof filePath !== "string") return null;
+  return SKILL_PATH.exec(filePath.replace(/\\/g, "/"))?.[1] ?? null;
+}
+
 export function ToolReasoning({ name, args, status }: ToolReasoningProps) {
+  const skillName = getSkillName(name, args);
+  if (skillName) {
+    name = `use_skill (${skillName})`;
+    args = undefined;
+  }
   const entries = args ? Object.entries(args) : [];
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const toolStatus = status as "complete" | "inProgress" | "executing"
