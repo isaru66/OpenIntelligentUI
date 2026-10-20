@@ -43,6 +43,7 @@ resource "terraform_data" "image_build" {
   depends_on = [
     azurerm_cognitive_deployment.chat,
     azurerm_cognitive_deployment.decision,
+    azurerm_cognitive_deployment.sol,
     azurerm_role_assignment.acr_pull,
     azurerm_role_assignment.foundry_inference,
   ]

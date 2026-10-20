@@ -30,6 +30,7 @@ def test_default_model_is_gpt_6_luna_on_azure_foundry(monkeypatch):
     assert model.openai_api_base == "https://ai-isarar-2855.services.ai.azure.com/openai/v1"
     assert model.reasoning == {"effort": "none"}
     assert model.use_responses_api is True
+    assert model.max_tokens == model_module.MAX_TOKENS
     assert callable(model.openai_api_key)
     assert model.openai_api_key() == "entra-token"
 
@@ -345,4 +346,3 @@ def test_request_model_middleware_shares_3_retry_budget_with_credential_scoped_m
         asyncio.run(middleware.awrap_model_call(req, handler))
     assert attempts == 4
     assert sleeps == [2.0, 4.0, 8.0]
-

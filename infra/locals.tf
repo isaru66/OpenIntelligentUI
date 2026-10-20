@@ -13,6 +13,7 @@ locals {
 
   tags = {
     "azd-env-name" = var.environment_name
+    env            = var.environment_name
     application    = "open-generative-ui"
     managed_by     = "terraform"
   }

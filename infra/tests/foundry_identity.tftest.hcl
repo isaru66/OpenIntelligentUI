@@ -46,16 +46,23 @@ override_resource {
 }
 
 variables {
-  environment_name   = "foundry-test"
-  subscription_id    = "00000000-0000-0000-0000-000000000001"
-  location           = "eastus2"
-  foundry_location   = "westus"
-  chat_model_version = "test-version"
-  webiq_api_key      = "mock-only-not-a-credential"
+  environment_name         = "foundry-test"
+  subscription_id          = "00000000-0000-0000-0000-000000000001"
+  location                 = "eastus2"
+  foundry_location         = "westus"
+  chat_model_version       = "test-version"
+  chat_deployment_capacity = 1
+  sol_model_version        = null
+  webiq_api_key            = "mock-only-not-a-credential"
 }
 
 run "keyless_foundry_and_scoped_runtime_roles" {
   command = plan
+
+  assert {
+    condition     = length(azurerm_cognitive_deployment.sol) == 0
+    error_message = "Sol must remain optional until an exact catalog version is supplied."
+  }
 
   assert {
     condition = (
@@ -123,10 +130,11 @@ run "keyless_foundry_and_scoped_runtime_roles" {
       azurerm_cognitive_deployment.decision.model[0].format == "Microsoft" &&
       azurerm_cognitive_deployment.decision.model[0].name == "Microsoft-Decision-1" &&
       azurerm_cognitive_deployment.decision.model[0].version == "1" &&
+      azurerm_cognitive_deployment.chat.sku[0].name == "GlobalStandard" &&
+      azurerm_cognitive_deployment.decision.sku[0].name == "DataZoneStandard" &&
       alltrue([for deployment in [azurerm_cognitive_deployment.chat, azurerm_cognitive_deployment.decision] :
         deployment.cognitive_account_id == azurerm_cognitive_account.main.id &&
         deployment.version_upgrade_option == "NoAutoUpgrade" &&
-        deployment.sku[0].name == "GlobalStandard" &&
         deployment.sku[0].capacity == 1
       ])
     )
@@ -144,7 +152,7 @@ run "custom_deployment_settings" {
     chat_deployment_sku          = "Standard"
     chat_deployment_capacity     = 7
     decision_deployment_name     = "decision-test"
-    decision_deployment_sku      = "DataZoneStandard"
+    decision_deployment_sku      = "GlobalStandard"
     decision_deployment_capacity = 3
   }
 
@@ -161,4 +169,33 @@ run "custom_deployment_settings" {
     )
     error_message = "Deployment names, model version, SKU and capacity must honor the caller's explicit inputs."
   }
+}
+
+run "optional_sol_model_picker_deployment" {
+  command = plan
+
+  variables {
+    sol_model_version       = "sol-test-version"
+    sol_deployment_capacity = 7
+  }
+
+  assert {
+    condition = (
+      azurerm_cognitive_deployment.sol[0].name == "gpt-6.1-sol" &&
+      azurerm_cognitive_deployment.sol[0].model[0].name == "gpt-6.1-sol" &&
+      azurerm_cognitive_deployment.sol[0].model[0].version == "sol-test-version" &&
+      azurerm_cognitive_deployment.sol[0].sku[0].name == var.chat_deployment_sku &&
+      azurerm_cognitive_deployment.sol[0].sku[0].capacity == 7 &&
+      azurerm_cognitive_deployment.sol[0].version_upgrade_option == "NoAutoUpgrade"
+    )
+    error_message = "The Sol picker must resolve to its own pinned, quota-configured model deployment."
+  }
+}
+
+run "reject_blank_sol_model_version" {
+  command = plan
+  variables {
+    sol_model_version = ""
+  }
+  expect_failures = [var.sol_model_version]
 }

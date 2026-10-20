@@ -173,6 +173,46 @@ def test_agent_stream_keeps_credentials_out_of_checkpoints_and_separates_threads
     assert all(secret not in persisted for secret in ['visitor-first', 'visitor-second', 'visitor-jev'])
 
 
+@pytest.mark.parametrize(
+    ('status', 'code'),
+    [(404, 'MODEL_DEPLOYMENT_NOT_FOUND'), (429, 'MODEL_RATE_LIMITED'), (500, 'MODEL_REQUEST_FAILED')],
+)
+def test_provider_failure_finishes_as_a_sanitized_sse_error(monkeypatch, caplog, status, code):
+    import openai
+    from ag_ui.core import EventType, RunStartedEvent
+    from ag_ui_langgraph import add_langgraph_fastapi_endpoint
+    from copilotkit import LangGraphAGUIAgent
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from langgraph.graph import StateGraph, MessagesState, START, END
+    from src.credentials import CredentialScopedAgent
+
+    async def fail(self, input):
+        yield RunStartedEvent(type=EventType.RUN_STARTED, thread_id=input.thread_id, run_id=input.run_id)
+        raise openai.APIStatusError(
+            'upstream response contains visitor-secret',
+            response=httpx.Response(status, request=httpx.Request('POST', 'https://provider.example')),
+            body=None,
+        )
+
+    monkeypatch.setattr(LangGraphAGUIAgent, 'run', fail)
+    builder = StateGraph(MessagesState)
+    builder.add_edge(START, END)
+    app = FastAPI()
+    add_langgraph_fastapi_endpoint(app, CredentialScopedAgent(name='test', graph=builder.compile()))
+    response = TestClient(app).post('/', json={
+        'threadId': 'public-thread', 'runId': 'public-run', 'messages': [],
+        'state': {}, 'tools': [], 'context': [], 'forwardedProps': {},
+    })
+    assert response.status_code == 200
+    events = [json.loads(line[6:]) for line in response.text.splitlines() if line.startswith('data: ')]
+    assert [event['type'] for event in events] == ['RUN_STARTED', 'RUN_ERROR']
+    assert events[0]['threadId'] == 'public-thread'
+    assert events[-1]['code'] == code
+    assert 'visitor-secret' not in response.text + caplog.text
+    assert 'Agent provider request failed' in caplog.text
+
+
 def test_main_starts_without_server_credentials(monkeypatch):
     import subprocess
     import sys

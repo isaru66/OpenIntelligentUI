@@ -30,4 +30,9 @@ resource "azurerm_container_app_environment" "main" {
   location                   = var.location
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
   tags                       = local.tags
+
+  workload_profile {
+    name                  = "Consumption"
+    workload_profile_type = "Consumption"
+  }
 }

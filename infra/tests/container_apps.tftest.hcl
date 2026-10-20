@@ -95,6 +95,8 @@ run "https_ingress_and_scoped_configuration" {
       !azurerm_container_app.agent.ingress[0].external_enabled &&
       !azurerm_container_app.agent.ingress[0].allow_insecure_connections &&
       azurerm_container_app.agent.ingress[0].target_port == 8123 &&
+      azurerm_container_app.agent.workload_profile_name == "Consumption" &&
+      azurerm_container_app.web.workload_profile_name == "Consumption" &&
       azurerm_container_app.web.revision_mode == "Single" &&
       azurerm_container_app.agent.revision_mode == "Single"
     )

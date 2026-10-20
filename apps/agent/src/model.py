@@ -207,6 +207,7 @@ def build_model(*, allow_unconfigured: bool = False, model_name: str | None = No
             "model": model_name,
             "base_url": get_foundry_openai_base_url(),
             "api_key": get_azure_token_provider(),
+            "max_tokens": MAX_TOKENS,
             "max_retries": 0,
         }
         if use_responses_api:

@@ -73,6 +73,7 @@ add_langgraph_fastapi_endpoint(
         name="sample_agent",
         description="Open Generative UI by CopilotKit — answers you can interact with",
         graph=agent,
+        config={"recursion_limit": 100},
     ),
     path="/",
 )

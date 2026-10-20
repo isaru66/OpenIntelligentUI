@@ -83,6 +83,29 @@ variable "chat_deployment_capacity" {
   }
 }
 
+variable "sol_model_version" {
+  description = "Exact gpt-6.1-sol catalog version; null disables the optional model-picker deployment."
+  type        = string
+  default     = null
+  validation {
+    condition = var.sol_model_version == null || (
+      can(regex("^[A-Za-z0-9][A-Za-z0-9._-]*$", var.sol_model_version)) &&
+      var.chat_deployment_name != "gpt-6.1-sol" && var.decision_deployment_name != "gpt-6.1-sol"
+    )
+    error_message = "Supply an exact nonempty Sol version and reserve gpt-6.1-sol as its deployment name."
+  }
+}
+
+variable "sol_deployment_capacity" {
+  description = "Optional gpt-6.1-sol capacity units; verify regional quota before enabling."
+  type        = number
+  default     = 1
+  validation {
+    condition     = var.sol_deployment_capacity >= 1 && floor(var.sol_deployment_capacity) == var.sol_deployment_capacity
+    error_message = "Sol deployment capacity must be a positive integer."
+  }
+}
+
 variable "decision_deployment_name" {
   description = "Microsoft-Decision-1 deployment name sent as AZURE_DECISION_DEPLOYMENT."
   type        = string
@@ -96,7 +119,7 @@ variable "decision_deployment_name" {
 variable "decision_deployment_sku" {
   description = "Microsoft-Decision-1 SKU supported in the selected Foundry region."
   type        = string
-  default     = "GlobalStandard"
+  default     = "DataZoneStandard"
   validation {
     condition     = contains(["GlobalStandard", "DataZoneStandard"], var.decision_deployment_sku)
     error_message = "Use GlobalStandard or DataZoneStandard."

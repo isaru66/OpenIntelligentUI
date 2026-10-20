@@ -67,6 +67,26 @@ resource "azurerm_cognitive_deployment" "decision" {
   depends_on = [azurerm_cognitive_deployment.chat]
 }
 
+resource "azurerm_cognitive_deployment" "sol" {
+  count                  = var.sol_model_version == null ? 0 : 1
+  name                   = "gpt-6.1-sol"
+  cognitive_account_id   = azurerm_cognitive_account.main.id
+  version_upgrade_option = "NoAutoUpgrade"
+
+  model {
+    format  = "OpenAI"
+    name    = "gpt-6.1-sol"
+    version = var.sol_model_version
+  }
+
+  sku {
+    name     = var.chat_deployment_sku
+    capacity = var.sol_deployment_capacity
+  }
+
+  depends_on = [azurerm_cognitive_deployment.decision]
+}
+
 locals {
   # Use the account-level AzureCloud endpoint for both /openai/v1 and
   # /providers/microsoft/v1/systemone, not the project's endpoint.

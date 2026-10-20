@@ -182,6 +182,33 @@ class BuildTests(unittest.TestCase):
         self.assertIn("docker/Dockerfile.app", sources)
         self.assertFalse(any(name.startswith("apps/agent/") for name in sources))
 
+    @unittest.skipUnless(shutil.which("terraform"), "Terraform not installed")
+    def test_web_build_inputs_do_not_traverse_generated_workspace_trees(self):
+        for name in ("apps/app/next.config.ts", "apps/app/tsconfig.json",
+                     "apps/app/postcss.config.mjs", "packages/design-system/tsconfig.json"):
+            self.write(name, "build configuration\n")
+        self.write("apps/app/public/icon.svg", "<svg/>")
+        for folder in ("apps/app/.next", "apps/app/node_modules",
+                       "packages/design-system/node_modules", "packages/design-system/dist"):
+            self.write(folder + "/generated.js", "generated output")
+            (self.root / folder / "broken-link").symlink_to(self.root / "missing")
+        sources = self.manifest("web")
+        self.assertIn("apps/app/next.config.ts", sources)
+        self.assertIn("apps/app/public/icon.svg", sources)
+        self.assertIn("packages/design-system/tsconfig.json", sources)
+        self.assertFalse(any("generated.js" in name for name in sources))
+        self.assertFalse(any("broken-link" in name for name in sources))
+        block = (ROOT / "infra/build.tf").read_text().split("  built_images = {")[0] + "}\n"
+        block = block.replace('abspath("${path.module}/..")', json.dumps(str(self.root)))
+        block = block.replace('${path.module}/scripts/', str(ROOT / "infra/scripts") + "/")
+        path = Path(self.temporary.name) / "terraform-root"
+        path.mkdir()
+        (path / "main.tf").write_text(block)
+        result = subprocess.run(["terraform", f"-chdir={path}", "console"], check=True,
+                                input="jsonencode(local.build_sources.web)\n", text=True,
+                                capture_output=True, timeout=30)
+        self.assertEqual(json.loads(json.loads(result.stdout.strip())), sources)
+
     def test_nested_sensitive_generated_and_cache_files_do_not_affect_context(self):
         names = [".env", ".env.production", ".env.test.local", "nested/.azure/env/config.json",
                  "nested/.terraform/terraform.tfstate", "nested/cache.tfstate.backup",

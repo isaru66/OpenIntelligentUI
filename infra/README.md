@@ -99,9 +99,16 @@ not migrate or rename existing Azure resources in place.
 The chat model defaults to `gpt-6-luna`. Its version is deliberately required
 rather than guessed. The routing model is `Microsoft-Decision-1`, format
 `Microsoft`, version `1`, deployment name `Decision-1`. Both default to
-`GlobalStandard`, capacity 1; defaults do **not** prove model availability, access,
+capacity 1; chat defaults to `GlobalStandard` and Decision to `DataZoneStandard`.
+Defaults do **not** prove model availability, access,
 or sufficient quota. Check the target region's catalog and subscription quota
 before provisioning. Never substitute a different model silently.
+
+The model picker also offers `gpt-6.1-sol`. Enable its deployment by setting
+`sol_model_version` to an exact version from the regional catalog and
+`sol_deployment_capacity` to sufficient verified quota. It uses the chat SKU and
+the fixed deployment name `gpt-6.1-sol`. Leaving the version null omits it; merely
+listing a model in the picker does not provision it.
 
 `main.tfvars.json` substitutes the five non-secret azd variables above.
 Optional Terraform inputs can be exported in the **calling shell**, for example:
@@ -202,6 +209,20 @@ Use azd consistently after initial provisioning. Bare `terraform apply` defaults
 to a different local state path and can attempt duplicate resources. Advanced
 direct Terraform use must explicitly preserve azd's environment-specific
 `TF_DATA_DIR`, state path, and resolved variable file.
+
+For a deployment initialized with **direct Terraform rather than azd**, continue
+using direct Terraform in WSL and preserve `infra/terraform.tfstate`:
+
+```bash
+terraform -chdir=infra init -input=false
+terraform -chdir=infra plan -input=false -out=deploy.tfplan
+terraform -chdir=infra apply deploy.tfplan
+```
+
+Supply the required inputs through an ignored `infra/terraform.tfvars` or runtime
+environment variables. Do not switch this deployment to azd without deliberately
+migrating its state. Shared resource tags include `env` equal to the environment
+name; the environment must satisfy any subscription tag policy.
 
 Deleting an environment's local files does not delete its cloud resources; it
 removes Terraform's record of them. Destruction through `azd down` is a separate,

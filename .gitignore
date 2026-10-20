@@ -76,6 +76,7 @@ bun.lockb
 *.tfstate.*
 *.tfplan
 *.tfplan.*
+tfplan
 *.tfvars
 *.tfvars.*
 !infra/main.tfvars.json

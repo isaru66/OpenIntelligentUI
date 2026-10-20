@@ -6,14 +6,20 @@ from dataclasses import dataclass, field
 import hashlib
 import hmac
 import json
+import logging
 import os
 
+import anthropic
 import httpx
+import openai
+from ag_ui.core import EventType, RunErrorEvent
 from copilotkit import LangGraphAGUIAgent
 from langsmith import tracing_context
 from starlette.responses import JSONResponse
 
 from src.selection import current_selection, parse_selection
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -98,11 +104,25 @@ class CredentialScopedAgent(LangGraphAGUIAgent):
     async def run(self, input):
         original = input.thread_id
         scoped = input.model_copy(update={'thread_id': private_thread_id(original)})
-        async for event in super().run(scoped):
-            # The wire protocol retains the client ID; only graph storage sees the private ID.
-            if hasattr(event, 'thread_id'):
-                event = event.model_copy(update={'thread_id': original})
-            yield event
+        try:
+            async for event in super().run(scoped):
+                # The wire protocol retains the client ID; only graph storage sees the private ID.
+                if hasattr(event, 'thread_id'):
+                    event = event.model_copy(update={'thread_id': original})
+                yield event
+        except (openai.APIError, anthropic.APIError) as error:
+            logger.error("Agent provider request failed (%s)", type(error).__name__)
+            status = getattr(error, 'status_code', None)
+            if status == 404:
+                code = 'MODEL_DEPLOYMENT_NOT_FOUND'
+                message = 'The selected model deployment is unavailable. Choose another model or contact the administrator.'
+            elif status == 429:
+                code = 'MODEL_RATE_LIMITED'
+                message = 'The model provider is rate limiting requests. Please wait and try again.'
+            else:
+                code = 'MODEL_REQUEST_FAILED'
+                message = 'The model provider could not complete this request. Please retry or choose another model.'
+            yield RunErrorEvent(type=EventType.RUN_ERROR, code=code, message=message)
 
 
 async def validate_credentials(credentials):

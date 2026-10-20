@@ -6,6 +6,7 @@ resource "azurerm_container_app" "agent" {
   name                         = local.container_app_names.agent
   resource_group_name          = azurerm_resource_group.main.name
   container_app_environment_id = azurerm_container_app_environment.main.id
+  workload_profile_name        = "Consumption"
   revision_mode                = "Single"
   tags                         = merge(local.tags, { "azd-service-name" = "agent" })
 
@@ -113,6 +114,7 @@ resource "azurerm_container_app" "web" {
   name                         = local.container_app_names.web
   resource_group_name          = azurerm_resource_group.main.name
   container_app_environment_id = azurerm_container_app_environment.main.id
+  workload_profile_name        = "Consumption"
   revision_mode                = "Single"
   tags                         = merge(local.tags, { "azd-service-name" = "web" })
 
