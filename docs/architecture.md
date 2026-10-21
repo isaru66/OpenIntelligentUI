@@ -29,6 +29,16 @@ The agent uses `create_deep_agent`, CopilotKit middleware, an Anthropic compatib
 
 `src/model.py` defaults to `LLM_MODEL=gpt-6-luna` on Azure AI Foundry (`AZURE_AI_FOUNDRY_ENDPOINT`, default `https://ai-isarar-2855.services.ai.azure.com`) using Entra ID token authentication via `src/azure_auth.py` (`AZURE_SUBSCRIPTION_ID`, `AZURE_TENANT_ID`, scope `https://cognitiveservices.azure.com/.default`). Before each user turn, `src/visualization_router.py` routes visualization decisions through `Microsoft-Decision-1` (`AZURE_DECISION_DEPLOYMENT=Decision-1`) at `/providers/microsoft/v1/systemone` using the same Entra ID bearer token. When `AZURE_AI_FOUNDRY_ENABLED=false` or `claude-*` is selected, `src/model.py` and `src/visualization_router.py` use direct provider credentials (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `TYPESAFE_API_KEY`).
 
+### Per-turn model and effort
+
+In shared mode, the AI picker offers `gpt-6-luna`, `gpt-6.1-sol`, and `claude-sonnet-5.5`. Clicking a model name selects it at **Medium** effort. Its separate chevron previews an effort submenu without changing the selection; choosing an effort applies both together. The current selection persists locally across reloads. On narrow screens, the submenu replaces the model panel and provides a Back control.
+
+All three models offer Low, Medium, High, Extra High (`xhigh`), and Max; only GPT-6 Luna offers None. The frontend validates the model/effort pair and forwards `x-ai-model`, `x-reasoning-effort`, and `x-decision-model` through the per-request runtime. Python validates them again and holds the selection in a ContextVar for the complete stream. A valid selected model with missing or invalid effort uses Medium. Without a valid selected model, the existing server configuration applies.
+
+GPT choices use the Responses API with `reasoning.effort`; Claude uses `output_config.effort` with adaptive thinking. Explicit picker effort takes precedence over the server's environment setting. Cached model instances are separated by model and effort; changing effort does not mutate another run's instance. Unavailable explicit selections produce an actionable run error rather than silently using a different model. Reply chips retain the selection frozen when their run began.
+
+BYOK remains fixed to OpenAI `chat-latest` and Jev. Its controls are disabled with an explanation, shared-mode overrides are omitted, and reply chips do not claim an unsupported effort. Clearing visitor keys restores the saved shared-mode selection.
+
 `src/webiq.py` provides the `web_search` tool for live public internet grounding via Microsoft Web IQ (`POST https://api.microsoft.ai/v3/search/web`, configurable with `WEBIQ_ENDPOINT` and authenticated via `WEBIQ_API_KEY`). 
 
 `src/prompt.py` and the three agent skills guide response selection. Plain text is appropriate for direct answers. Native components handle supported structured tasks; custom UI serves useful diagrams, comparisons, calculators, and simulations. Planning is optional. See [Product and agent behavior](interactive-answers.md).

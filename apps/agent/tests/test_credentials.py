@@ -63,6 +63,139 @@ def test_concurrent_streams_isolate_keys_and_reset_on_cancellation():
     asyncio.run(exercise())
 
 
+def test_concurrent_shared_streams_keep_effort_for_middleware_and_internal_calls(monkeypatch):
+    from langchain.agents.middleware import ModelRequest
+    from langchain_core.messages import AIMessage, HumanMessage
+    from langchain_core.language_models.fake_chat_models import FakeMessagesListChatModel
+    from src.credentials import CredentialsMiddleware
+    from src.selection import Selection, current_selection
+    import src.model as models
+
+    models._selected_models.clear()
+    fallback = FakeMessagesListChatModel(responses=[AIMessage(content="fallback")])
+    selected = {
+        effort: FakeMessagesListChatModel(responses=[AIMessage(content=effort)])
+        for effort in ["medium", "max"]
+    }
+    monkeypatch.setattr(models, "build_model", lambda **kw: selected[kw["reasoning_effort"]])
+
+    async def exercise():
+        entered = asyncio.Event()
+        count = 0
+        observed = []
+        scoped = models.CredentialScopedModel(fallback=fallback)
+        async def inner(scope, receive, send):
+            nonlocal count
+            count += 1
+            if count == 2:
+                entered.set()
+            await entered.wait()
+            effort = current_selection.get().reasoning_effort
+            assert (await scoped.ainvoke("internal summary")).content == effort
+            request = ModelRequest(
+                model=scoped, messages=[HumanMessage(content="hi")], tools=[],
+                system_message=None, tool_choice=None, state={}, runtime=None,
+            )
+            async def handler(request):
+                target, _ = request.model._target({})
+                assert target is selected[effort]
+                return effort
+            assert await models.RequestModelMiddleware().awrap_model_call(request, handler) == effort
+            await asyncio.sleep(0)
+            assert current_selection.get().reasoning_effort == effort
+            observed.append(effort)
+            if effort == "max":
+                raise asyncio.CancelledError
+        async def run(effort):
+            scope = {"type": "http", "path": "/stream", "headers": [
+                (b"x-ai-model", b"gpt-6-luna"), (b"x-reasoning-effort", effort.encode()),
+            ]}
+            async def receive():
+                return {"type": "http.disconnect"}
+            async def send(message):
+                pass
+            try:
+                await CredentialsMiddleware(inner)(scope, receive, send)
+            except asyncio.CancelledError:
+                pass
+            assert current_selection.get() == Selection()
+        await asyncio.gather(run("medium"), run("max"))
+        assert sorted(observed) == ["max", "medium"]
+    try:
+        asyncio.run(exercise())
+    finally:
+        models._selected_models.clear()
+
+
+def test_byok_stream_ignores_shared_model_effort_and_env(monkeypatch):
+    from src.credentials import CredentialsMiddleware
+    from src.selection import Selection, current_selection
+    from src.model import request_model
+    monkeypatch.setenv("LLM_MODEL", "claude-sonnet-5.5")
+    monkeypatch.setenv("LLM_REASONING_EFFORT", "max")
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "true")
+
+    async def inner(scope, receive, send):
+        assert current_selection.get() == Selection()
+        model = request_model(None)
+        assert model.model_name == "chat-latest"
+        assert model.openai_api_base == "https://api.openai.com/v1"
+        assert model.reasoning is None
+        assert model.reasoning_effort is None
+        assert model.use_responses_api is None
+        assert model.openai_api_key.get_secret_value() == "visitor"
+    async def noop(*args):
+        pass
+    scope = {"type": "http", "path": "/", "headers": [
+        (b"x-ai-model", b"claude-sonnet-5.5"), (b"x-reasoning-effort", b"max"),
+        (b"x-openai-api-key", b"visitor"), (b"x-jev-api-key", b"jev"),
+    ]}
+    asyncio.run(CredentialsMiddleware(inner)(scope, noop, noop))
+    assert current_selection.get() == Selection()
+
+
+def test_unavailable_explicit_selection_emits_fixed_run_error(monkeypatch, caplog):
+    from ag_ui_langgraph import add_langgraph_fastapi_endpoint
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from langgraph.graph import StateGraph, MessagesState, START, END
+    from src.credentials import CredentialScopedAgent, CredentialsMiddleware
+    from src.bounded_memory_saver import BoundedMemorySaver
+    import src.model as models
+
+    models._selected_models.clear()
+    def fail(**kwargs):
+        raise ValueError("private-provider-detail")
+    monkeypatch.setattr(models, "build_model", fail)
+    async def answer(state):
+        models.request_model(None)
+        return {"messages": []}
+    builder = StateGraph(MessagesState)
+    builder.add_node("answer", answer)
+    builder.add_edge(START, "answer")
+    builder.add_edge("answer", END)
+    app = FastAPI()
+    app.add_middleware(CredentialsMiddleware)
+    # Avoid the server credential gate: the failure must originate in model selection.
+    monkeypatch.setattr("src.credentials.server_credentials_available", lambda: True)
+    add_langgraph_fastapi_endpoint(app, CredentialScopedAgent(
+        name="test", graph=builder.compile(checkpointer=BoundedMemorySaver()),
+    ))
+    response = TestClient(app).post("/", headers={
+        "x-ai-model": "claude-sonnet-5.5", "x-reasoning-effort": "max",
+    }, json={
+        "threadId": "thread", "runId": "run", "messages": [],
+        "state": {}, "tools": [], "context": [], "forwardedProps": {},
+    })
+    assert response.status_code == 200
+    events = [json.loads(line[6:]) for line in response.text.splitlines() if line.startswith("data: ")]
+    errors = [event for event in events if event["type"] == "RUN_ERROR"]
+    assert len(errors) == 1
+    assert errors[0]["code"] == "MODEL_SELECTION_UNAVAILABLE"
+    assert "administrator" in errors[0]["message"]
+    assert "private-provider-detail" not in response.text + caplog.text
+
+
 def test_request_model_and_jev_override_without_environment_mutation(monkeypatch):
     from src.credentials import Credentials, current_credentials
     from src.model import request_model
@@ -268,6 +401,38 @@ def test_actual_stream_disconnect_retains_then_releases_context():
         assert finalized.is_set()
         assert observed == ['visitor', 'visitor']
         assert current_credentials.get() is None
+    asyncio.run(exercise())
+
+
+def test_shared_stream_disconnect_retains_then_releases_selection():
+    from starlette.responses import StreamingResponse
+    from src.credentials import CredentialsMiddleware
+    from src.selection import Selection, current_selection
+    async def exercise():
+        first_chunk = asyncio.Event()
+        observed = []
+        expected = Selection("gpt-6-luna", reasoning_effort="max")
+        async def chunks():
+            try:
+                observed.append(current_selection.get())
+                yield b"first"
+                await asyncio.Event().wait()
+            finally:
+                observed.append(current_selection.get())
+        async def inner(scope, receive, send):
+            await StreamingResponse(chunks())(scope, receive, send)
+        async def receive():
+            await first_chunk.wait()
+            return {"type": "http.disconnect"}
+        async def send(message):
+            if message["type"] == "http.response.body":
+                first_chunk.set()
+        scope = {"type": "http", "path": "/stream", "asgi": {"spec_version": "2.0"}, "headers": [
+            (b"x-ai-model", b"gpt-6-luna"), (b"x-reasoning-effort", b"max"),
+        ]}
+        await CredentialsMiddleware(inner)(scope, receive, send)
+        assert observed == [expected, expected]
+        assert current_selection.get() == Selection()
     asyncio.run(exercise())
 
 

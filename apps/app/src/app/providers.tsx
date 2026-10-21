@@ -26,12 +26,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider>
       <PostHogAnalytics />
       <ProviderKeysProvider>
-        <ModelSelectionProvider>
-          <ChatProviders>{children}</ChatProviders>
-        </ModelSelectionProvider>
+        <ModelProviders>{children}</ModelProviders>
       </ProviderKeysProvider>
     </ThemeProvider>
   );
+}
+
+function ModelProviders({ children }: { children: React.ReactNode }) {
+  const { hasKeys } = useProviderKeys();
+  return <ModelSelectionProvider byok={hasKeys}><ChatProviders>{children}</ChatProviders></ModelSelectionProvider>;
 }
 
 function ChatProviders({ children }: { children: React.ReactNode }) {

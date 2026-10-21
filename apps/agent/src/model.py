@@ -22,6 +22,7 @@ from src.azure_auth import (
     get_foundry_openai_base_url,
     is_azure_foundry_enabled,
 )
+from src.selection import DEFAULT_REASONING_EFFORT, REASONING_EFFORTS
 
 logger = logging.getLogger(__name__)
 
@@ -163,8 +164,15 @@ def _is_foundry_or_openai_model(model_name: str) -> bool:
     return model_name == "chat-latest" or model_name.startswith(FOUNDRY_MODEL_PREFIXES)
 
 
-def build_model(*, allow_unconfigured: bool = False, model_name: str | None = None) -> BaseChatModel:
+def build_model(
+    *,
+    allow_unconfigured: bool = False,
+    model_name: str | None = None,
+    reasoning_effort: str | None = None,
+) -> BaseChatModel:
     model_name = (model_name or os.environ.get("LLM_MODEL", DEFAULT_MODEL)).strip()
+    if reasoning_effort is not None and reasoning_effort not in REASONING_EFFORTS.get(model_name, ()):
+        raise ValueError("Unsupported model and reasoning effort combination.")
     is_openai = _is_foundry_or_openai_model(model_name)
     is_claude = model_name.startswith("claude-")
     if not is_openai and not is_claude:
@@ -181,10 +189,16 @@ def build_model(*, allow_unconfigured: bool = False, model_name: str | None = No
                 "ANTHROPIC_API_KEY is required for the selected LLM_MODEL provider. "
                 "Set it in the agent environment and restart the agent."
             )
+        # The adapter's effort enum lacks xhigh; output_config preserves the provider value.
+        effort_kwargs = (
+            {"model_kwargs": {"output_config": {"effort": reasoning_effort}}, "thinking": {"type": "adaptive"}}
+            if reasoning_effort is not None else {}
+        )
         return ChatAnthropic(
             model=model_name,
             max_tokens=MAX_TOKENS,
             max_retries=0,
+            **effort_kwargs,
         )
 
     from langchain_openai import ChatOpenAI
@@ -193,9 +207,11 @@ def build_model(*, allow_unconfigured: bool = False, model_name: str | None = No
         # gpt-6.1-sol rejects reasoning_effort="none" and chat completions reject
         # function tools with any other effort; all gpt-6* models use the Responses API.
         is_sol = model_name.startswith("gpt-6.1-sol")
-        reasoning_effort = os.environ.get("LLM_REASONING_EFFORT", "none").strip()
-        if is_sol and reasoning_effort in {"", "none"}:
-            reasoning_effort = "low"
+        effort = reasoning_effort
+        if effort is None:
+            effort = os.environ.get("LLM_REASONING_EFFORT", "none").strip()
+            if is_sol and effort in {"", "none"}:
+                effort = "low"
         use_responses_api = model_name.startswith("gpt-6") or os.environ.get(
             "LLM_USE_RESPONSES_API", ""
         ).strip().lower() in {
@@ -212,10 +228,10 @@ def build_model(*, allow_unconfigured: bool = False, model_name: str | None = No
         }
         if use_responses_api:
             foundry_kwargs["use_responses_api"] = True
-            if reasoning_effort:
-                foundry_kwargs["reasoning"] = {"effort": reasoning_effort}
-        elif reasoning_effort:
-            foundry_kwargs["reasoning_effort"] = reasoning_effort
+            if effort:
+                foundry_kwargs["reasoning"] = {"effort": effort}
+        elif effort:
+            foundry_kwargs["reasoning_effort"] = effort
         return ChatOpenAI(**foundry_kwargs)
 
     if not os.environ.get("OPENAI_API_KEY", "").strip():
@@ -225,7 +241,15 @@ def build_model(*, allow_unconfigured: bool = False, model_name: str | None = No
             "OPENAI_API_KEY is required for the selected LLM_MODEL provider. "
             "Set it in the agent environment and restart the agent."
         )
-    return ChatOpenAI(model=model_name, max_retries=0)
+    selected_kwargs = (
+        {
+            "use_responses_api": True,
+            "reasoning": {"effort": reasoning_effort},
+            "max_tokens": MAX_TOKENS,
+        }
+        if reasoning_effort is not None else {}
+    )
+    return ChatOpenAI(model=model_name, max_retries=0, **selected_kwargs)
 
 
 class UnconfiguredModel(BaseChatModel):
@@ -242,23 +266,32 @@ class UnconfiguredModel(BaseChatModel):
         return self
 
 
-_selected_models: dict[str, BaseChatModel] = {}
+class ModelSelectionError(ValueError):
+    """An explicit shared selection could not be configured (never fall back)."""
+
+
+_selected_models: dict[tuple[str, str], BaseChatModel] = {}
 
 
 def selected_model(fallback):
-    """Honour the allowlisted x-ai-model choice; any unusable choice keeps the server default."""
+    """Resolve explicit model/effort atomically, without silently changing attribution."""
     from src.selection import AI_MODELS, current_selection
-    name = current_selection.get().ai_model
-    if name not in AI_MODELS or name == os.environ.get("LLM_MODEL", DEFAULT_MODEL).strip():
+    selection = current_selection.get()
+    name = selection.ai_model
+    if name not in AI_MODELS:
         return fallback
-    if name.startswith("claude-") and not os.environ.get("ANTHROPIC_API_KEY", "").strip():
-        return fallback
-    if name not in _selected_models:
+    effort = selection.reasoning_effort or DEFAULT_REASONING_EFFORT
+    key = (name, effort)
+    if key not in _selected_models:
         try:
-            _selected_models[name] = build_model(model_name=name)
-        except ValueError:
-            return fallback
-    return _selected_models[name]
+            _selected_models[key] = build_model(model_name=name, reasoning_effort=effort)
+        except (ValueError, RuntimeError, openai.OpenAIError, anthropic.AnthropicError) as error:
+            logger.warning("Unable to configure selected model (%s)", type(error).__name__)
+            raise ModelSelectionError(
+                "The selected model and reasoning effort are unavailable. "
+                "Choose another model or ask the administrator to configure its provider."
+            ) from None
+    return _selected_models[key]
 
 
 def request_model(fallback):

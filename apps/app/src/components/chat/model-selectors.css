@@ -39,3 +39,32 @@
 }
 @media (max-width: 600px) { .model-dropdown__menu { position: fixed; left: 16px; right: 16px; bottom: 96px; width: auto; max-width: none; } }
 @media (prefers-reduced-motion: reduce) { .model-dropdown__label { transition: none; } }
+.ai-model-menu { width: 300px; }
+.ai-model-menu__row { display: flex; align-items: stretch; }
+.ai-model-menu__select { flex: 1; min-width: 0; border: 0; background: transparent; text-align: left; }
+.ai-model-menu__chevron {
+  display: inline-flex; align-items: center; justify-content: center; width: 40px; min-height: 40px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--nitro-muted); cursor: pointer;
+}
+.ai-model-menu__chevron > svg { transform: rotate(-90deg); }
+.ai-model-menu__chevron:hover, .ai-model-menu__chevron[aria-expanded="true"] { background: var(--nitro-surface-2); }
+.ai-model-menu button:focus-visible, .effort-menu button:focus-visible {
+  outline: 2px solid var(--nitro-accent); outline-offset: -2px;
+}
+.effort-menu { position: fixed; bottom: auto; width: 240px; max-height: calc(100dvh - 32px); overflow-y: auto; }
+.effort-menu__heading { padding: 6px 10px 2px; color: var(--nitro-text); font-size: 13px; font-weight: 600; }
+.effort-menu__model { padding: 0 10px 8px; color: var(--nitro-muted); font-size: 12px; overflow-wrap: anywhere; }
+.effort-menu__option { width: 100%; min-height: 40px; border: 0; background: transparent; text-align: left; }
+.effort-menu__default { font-size: 11px; color: var(--nitro-muted); }
+.effort-menu__help, .model-selectors__help { color: var(--nitro-muted); font-size: 12px; line-height: 1.5; }
+.effort-menu__help { padding: 8px 10px 4px; margin: 0; }
+.effort-menu__back { display: none; }
+.model-selectors__help { flex-basis: 100%; }
+@media (max-width: 600px) {
+  .ai-model-menu[data-hidden] { display: none; }
+  .effort-menu { bottom: 96px; top: auto; width: auto; max-width: none; max-height: calc(100dvh - 112px); }
+  .effort-menu__back {
+    display: block; border: 0; border-radius: 6px; padding: 8px 10px; margin-bottom: 4px;
+    background: transparent; color: var(--nitro-accent); font: inherit; cursor: pointer;
+  }
+}

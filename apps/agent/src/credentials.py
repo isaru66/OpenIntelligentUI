@@ -17,7 +17,7 @@ from copilotkit import LangGraphAGUIAgent
 from langsmith import tracing_context
 from starlette.responses import JSONResponse
 
-from src.selection import current_selection, parse_selection
+from src.selection import Selection, current_selection, parse_selection
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ class CredentialsMiddleware:
             return await JSONResponse({'ok': False, 'code': 'invalid_keys'}, status_code=400)(scope, receive, send)
         if scope['path'] == '/' and not credentials and not server_credentials_available():
             return await JSONResponse({'ok': False, 'code': 'credentials_required'}, status_code=401)(scope, receive, send)
-        selection = parse_selection(scope.get('headers', []))
+        selection = Selection() if credentials else parse_selection(scope.get('headers', []))
         clean_scope = {**scope, 'headers': [(k, v) for k, v in scope.get('headers', []) if k.lower() not in SENSITIVE_HEADERS]}
         token = current_credentials.set(credentials)
         selection_token = current_selection.set(selection)
@@ -102,6 +102,8 @@ def private_thread_id(thread_id):
 
 class CredentialScopedAgent(LangGraphAGUIAgent):
     async def run(self, input):
+        from src.model import ModelSelectionError
+
         original = input.thread_id
         scoped = input.model_copy(update={'thread_id': private_thread_id(original)})
         try:
@@ -110,6 +112,12 @@ class CredentialScopedAgent(LangGraphAGUIAgent):
                 if hasattr(event, 'thread_id'):
                     event = event.model_copy(update={'thread_id': original})
                 yield event
+        except ModelSelectionError:
+            yield RunErrorEvent(
+                type=EventType.RUN_ERROR,
+                code='MODEL_SELECTION_UNAVAILABLE',
+                message='The selected model and reasoning effort are unavailable. Choose another model or ask the administrator to configure its provider.',
+            )
         except (openai.APIError, anthropic.APIError) as error:
             logger.error("Agent provider request failed (%s)", type(error).__name__)
             status = getattr(error, 'status_code', None)

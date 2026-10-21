@@ -111,6 +111,85 @@ def test_main_uses_build_model():
     assert "ChatOpenAI" not in main_src.read_text()
 
 
+@pytest.mark.parametrize("foundry", [False, True])
+@pytest.mark.parametrize("streaming", [False, True])
+@pytest.mark.parametrize(("name", "effort"), [
+    (name, effort)
+    for name, efforts in model_module.REASONING_EFFORTS.items()
+    for effort in efforts
+])
+def test_selected_effort_reaches_serialized_tool_capable_provider_request(monkeypatch, foundry, streaming, name, effort):
+    """Capture actual SDK HTTP serialization, without sending anything to a provider."""
+    import json
+    import httpx
+
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", str(foundry).lower())
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setenv("LLM_REASONING_EFFORT", "low")
+    monkeypatch.setattr(model_module, "get_azure_token_provider", lambda: (lambda: "test-token"))
+    captured = []
+
+    def capture(self, request, **kwargs):
+        captured.append(request)
+        # A 400 response avoids SDK retries and proves the final JSON wire body.
+        return httpx.Response(400, json={"error": {"type": "invalid_request_error", "message": "test capture"}}, request=request)
+
+    monkeypatch.setattr(httpx.Client, "send", capture)
+    model = build_model(model_name=name, reasoning_effort=effort)
+    tools = [{
+        "name": "get_weather", "description": "Look up weather.",
+        "parameters": {"type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]},
+    }]
+    with pytest.raises((model_module.openai.BadRequestError, model_module.anthropic.BadRequestError)):
+        bound = model.bind_tools(tools)
+        if streaming:
+            list(bound.stream("Weather in Paris?"))
+        else:
+            bound.invoke("Weather in Paris?")
+    assert len(captured) == 1
+    payload = json.loads(captured[0].content)
+    assert payload.get("stream", False) is streaming
+    assert payload["model"] == name
+    assert payload["tools"][0]["name"] == "get_weather"
+    assert "reasoning_effort" not in payload
+    if name.startswith("claude-"):
+        assert captured[0].url.path.endswith("/messages")
+        assert payload["output_config"]["effort"] == effort
+        assert payload["thinking"] == {"type": "adaptive"}
+        assert payload["max_tokens"] == model_module.MAX_TOKENS
+    else:
+        assert captured[0].url.path.endswith("/responses")
+        assert payload["reasoning"] == {"effort": effort}
+        assert payload["max_output_tokens"] == model_module.MAX_TOKENS
+    assert model.max_retries == 0
+
+
+@pytest.mark.parametrize(("name", "effort"), [
+    ("gpt-6-luna", "auto"), ("gpt-6.1-sol", "none"), ("claude-sonnet-5.5", "none"),
+    ("chat-latest", "medium"), ("claude-opus-4-6", "high"), ("gpt-6-luna", "HIGH"),
+])
+def test_explicit_effort_rejects_unsupported_combinations(name, effort):
+    with pytest.raises(ValueError, match="combination"):
+        build_model(model_name=name, reasoning_effort=effort)
+
+
+def test_headerless_provider_settings_are_not_changed_by_picker_defaults(monkeypatch):
+    monkeypatch.setenv("LLM_REASONING_EFFORT", "high")
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "true")
+    monkeypatch.setattr(model_module, "get_azure_token_provider", lambda: (lambda: "test-token"))
+    assert build_model(model_name="gpt-6-luna").reasoning == {"effort": "high"}
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    standard = build_model(model_name="gpt-6-luna")
+    assert standard.reasoning is None
+    assert standard.use_responses_api is None
+    claude = build_model(model_name="claude-sonnet-5.5")
+    assert claude.effort is None
+    assert claude.thinking is None
+
+
 @pytest.mark.parametrize("name", ["", "   ", "gemini-example", "typo-model"])
 def test_invalid_model_configuration_fails_before_client_creation(monkeypatch, name):
     monkeypatch.setenv("LLM_MODEL", name)

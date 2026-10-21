@@ -35,6 +35,7 @@ By default in local development, the Python factory uses Azure AI Foundry (`AZUR
 | `AZURE_SUBSCRIPTION_ID`                   | Agent         | Azure subscription ID for CLI/Entra credential resolution                           |
 | `AZURE_TENANT_ID`                         | Agent         | Azure Entra tenant ID (`ddcbdc96-6162-4d91-bb0d-066343049ce1`)                      |
 | `LLM_MODEL`                               | Agent         | Defaults to `gpt-6-luna` on Foundry; `claude-*` routes to Anthropic. The prompt-box AI model choices `gpt-6-luna` and `gpt-6.1-sol` are Foundry deployments on the same resource (deployment name = model name) |
+| `LLM_REASONING_EFFORT`                    | Agent         | Existing Foundry fallback effort for requests without a picker selection; an explicit picker selection overrides it (picker default: `medium`) |
 | `AZURE_DECISION_DEPLOYMENT`               | Agent         | Foundry SystemOne deployment name (defaults to `Decision-1`)                        |
 | `WEBIQ_API_KEY`                           | Agent         | API key (`x-apikey`) for Microsoft Web IQ public internet grounding                 |
 | `WEBIQ_ENDPOINT`                          | Agent         | Web IQ endpoint URL (defaults to `https://api.microsoft.ai/v3/search/web`)          |
@@ -55,9 +56,23 @@ Both services declare scaling from one to three instances. Agent checkpoints cur
 
 ## Visitor API keys
 
-Visitors can supply OpenAI and Jev keys through **API keys** in the chat header. The Next.js runtime forwards only `x-openai-api-key` and `x-jev-api-key` to the configured agent, creating a separate runtime instance per request. The Python ASGI middleware strips these headers before the inner application and scopes credentials to the entire streaming request without changing process environment variables. BYOK conversations have credential-specific checkpoint IDs, separate from shared-mode conversations. Both keys are required; partial pairs never fall back to server secrets.
+Visitors can supply OpenAI and Jev keys through **API keys** in the chat header. The Next.js runtime forwards the validated `x-openai-api-key` and `x-jev-api-key` credential pair to the configured agent, creating a separate runtime instance per request. Shared mode also forwards allowlisted `x-ai-model`, `x-reasoning-effort`, and `x-decision-model` selection headers. The Python ASGI middleware strips credential headers before the inner application and scopes credentials to the entire streaming request without changing process environment variables. BYOK conversations have credential-specific checkpoint IDs, separate from shared-mode conversations. Both keys are required; partial pairs never fall back to server secrets.
 
 `POST /api/provider-keys` proxies connection validation to the agent’s `POST /credentials/validate`. It performs small real provider requests and returns only fixed error messages. BYOK always uses the standard OpenAI endpoint and `chat-latest`; Jev uses `jev-latest`. Hosted LangSmith tracing is disabled for BYOK. The application does not persist the keys, but its server necessarily receives them: use HTTPS externally and a trusted private or TLS connection between frontend and agent. Do not configure infrastructure to log credential headers.
+
+The model and effort controls are disabled while visitor keys are active, and shared-mode overrides are omitted. Removing visitor keys restores the saved shared selection. BYOK does not provide Anthropic credentials or honor the shared picker.
+
+## Shared model effort
+
+Click a model name to select it at Medium, or open its chevron submenu and choose a different effort. Model and effort are applied atomically, remembered across reloads, and recorded on each reply. Higher effort may increase latency and token usage; it is not a fixed token budget.
+
+| Model | Available efforts | Provider configuration |
+| --- | --- | --- |
+| `gpt-6-luna` | `none`, `low`, `medium`, `high`, `xhigh`, `max` | OpenAI/Foundry Responses API, `reasoning.effort` |
+| `gpt-6.1-sol` | `low`, `medium`, `high`, `xhigh`, `max` | OpenAI/Foundry Responses API, `reasoning.effort` |
+| `claude-sonnet-5.5` | `low`, `medium`, `high`, `xhigh`, `max` | Anthropic Messages, `output_config.effort` and adaptive thinking |
+
+The server validates selections independently of the UI. Missing, malformed, duplicate, or unsupported effort for an otherwise valid selected model resolves to Medium. Invalid models are ignored, leaving the existing server default in control. Requests without a valid picker model retain their existing `LLM_MODEL`/environment behavior. A valid explicit selection is not silently replaced if its provider credentials or deployment are unavailable; the run reports an actionable error. Confirm deployment access to each offered model before enabling it for users, including tool calling and generation at the intended effort.
 
 ## Other hosts
 
