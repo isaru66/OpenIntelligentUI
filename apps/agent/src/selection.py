@@ -3,12 +3,13 @@
 from contextvars import ContextVar
 from dataclasses import dataclass
 
-AI_MODELS = ("gpt-6-luna", "gpt-6.1-sol", "claude-sonnet-5.5")
+AI_MODELS = ("gpt-6-luna", "gpt-6.1-sol", "claude-sonnet-5.5", "deepseek-v4.1-flash")
 DEFAULT_REASONING_EFFORT = "medium"
 REASONING_EFFORTS = {
     "gpt-6-luna": ("none", "low", "medium", "high", "xhigh", "max"),
     "gpt-6.1-sol": ("low", "medium", "high", "xhigh", "max"),
     "claude-sonnet-5.5": ("low", "medium", "high", "xhigh", "max"),
+    "deepseek-v4.1-flash": ("low", "medium", "high"),
 }
 DECISION_MODELS = ("Microsoft-Decision-1", "Jev")
 AI_MODEL_HEADER = b"x-ai-model"

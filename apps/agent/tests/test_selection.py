@@ -52,6 +52,38 @@ def test_gpt_selection_builds_selected_model(monkeypatch, select):
     model_module._selected_models.clear()
 
 
+def test_deepseek_selection_retains_public_alias_and_caches_each_effort(monkeypatch, select):
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "true")
+    monkeypatch.setattr(model_module, "get_azure_token_provider", lambda: (lambda: "entra-token"))
+    selected = {}
+    for effort in ("low", "medium", "high"):
+        select(ai="deepseek-v4.1-flash", effort=effort)
+        selected[effort] = model_module.selected_model(object())
+        assert selected[effort].model_name == "FW-DeepSeek-V4.1-Flash"
+        assert selected[effort].reasoning_effort == effort
+        assert current_selection.get().ai_model == "deepseek-v4.1-flash"
+    select(ai="deepseek-v4.1-flash", effort="medium")
+    assert model_module.selected_model(object()) is selected["medium"]
+    assert len({id(model) for model in selected.values()}) == 3
+
+
+def test_deepseek_selection_errors_when_foundry_is_disabled(monkeypatch, select):
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
+    monkeypatch.setenv("OPENAI_API_KEY", "public-key")
+    select(ai="deepseek-v4.1-flash")
+    with pytest.raises(model_module.ModelSelectionError, match="administrator"):
+        model_module.selected_model(object())
+    assert not model_module._selected_models
+
+
+@pytest.mark.parametrize("effort", ["none", "xhigh", "max"])
+def test_deepseek_unsupported_selected_effort_normalizes_to_medium(effort):
+    assert parse_selection([
+        (b"x-ai-model", b"deepseek-v4.1-flash"),
+        (b"x-reasoning-effort", effort.encode()),
+    ]) == Selection("deepseek-v4.1-flash", reasoning_effort="medium")
+
+
 def test_jev_selection_uses_typesafe_route_only_with_key(monkeypatch, select):
     monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "true")
     select(decision="Jev")

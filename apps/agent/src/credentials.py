@@ -102,7 +102,7 @@ def private_thread_id(thread_id):
 
 class CredentialScopedAgent(LangGraphAGUIAgent):
     async def run(self, input):
-        from src.model import ModelSelectionError
+        from src.model import ModelOutputIncompleteError, ModelSelectionError
 
         original = input.thread_id
         scoped = input.model_copy(update={'thread_id': private_thread_id(original)})
@@ -117,6 +117,13 @@ class CredentialScopedAgent(LangGraphAGUIAgent):
                 type=EventType.RUN_ERROR,
                 code='MODEL_SELECTION_UNAVAILABLE',
                 message='The selected model and reasoning effort are unavailable. Choose another model or ask the administrator to configure its provider.',
+            )
+        except ModelOutputIncompleteError as error:
+            logger.warning("Agent model output was incomplete")
+            yield RunErrorEvent(
+                type=EventType.RUN_ERROR,
+                code='MODEL_OUTPUT_INCOMPLETE',
+                message=str(error),
             )
         except (openai.APIError, anthropic.APIError) as error:
             logger.error("Agent provider request failed (%s)", type(error).__name__)

@@ -1,4 +1,4 @@
-export const AI_MODELS = ["gpt-6-luna", "gpt-6.1-sol", "claude-sonnet-5.5"] as const;
+export const AI_MODELS = ["gpt-6-luna", "gpt-6.1-sol", "claude-sonnet-5.5", "deepseek-v4.1-flash"] as const;
 export const DECISION_MODELS = ["Microsoft-Decision-1", "Jev"] as const;
 export type AiModel = (typeof AI_MODELS)[number];
 export type DecisionModel = (typeof DECISION_MODELS)[number];
@@ -12,6 +12,7 @@ export const MODEL_EFFORTS: Record<AiModel, readonly ReasoningEffort[]> = {
   "gpt-6-luna": REASONING_EFFORTS,
   "gpt-6.1-sol": REASONING_EFFORTS.filter((effort) => effort !== "none"),
   "claude-sonnet-5.5": REASONING_EFFORTS.filter((effort) => effort !== "none"),
+  "deepseek-v4.1-flash": ["low", "medium", "high"],
 };
 
 export function normalizeEffort(model: AiModel, value: unknown): ReasoningEffort {

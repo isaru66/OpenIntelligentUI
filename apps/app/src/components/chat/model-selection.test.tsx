@@ -1,16 +1,21 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { ModelSelectionProvider, MODEL_STORAGE_KEY, useModelSelection } from "./model-selection";
+import { ModelAttributionRecorder, ModelSelectionProvider, MODEL_STORAGE_KEY, useModelSelection } from "./model-selection";
+import type { useAgent } from "@copilotkit/react-core/v2";
 import { ModelChips, ModelSelectors } from "./model-dropdowns";
 import { ProviderKeysProvider, useProviderKeys } from "./provider-keys";
 import { AI_MODELS, EFFORT_LABELS, MODEL_EFFORTS, readModelHeaders } from "@/lib/model-headers";
 import { buildRuntimeOptions } from "@/lib/copilotkit-runtime-options";
 
+type Subscriber = Parameters<ReturnType<typeof useAgent>["agent"]["subscribe"]>[0];
+const fakeAgent = vi.hoisted(() => ({
+  subscribe: vi.fn<(subscriber: Subscriber) => { unsubscribe: () => void }>(() => ({ unsubscribe() {} })),
+}));
 vi.mock("@copilotkit/react-core/v2", () => ({
   CopilotChatInput: { AddMenuButton: () => null },
   CopilotChatAssistantMessage: () => null,
-  useAgent: () => ({ agent: { subscribe: () => ({ unsubscribe() {} }) } }),
+  useAgent: () => ({ agent: fakeAgent }),
 }));
 
 function Probe() {
@@ -71,9 +76,9 @@ it.each(AI_MODELS)("shows only supported efforts for %s without applying the pre
     .toEqual(MODEL_EFFORTS[model].map((effort) => EFFORT_LABELS[effort]));
   expect(headers()["x-ai-model"]).toBe("gpt-6-luna");
   expect(within(menu).getByRole("menuitemradio", { name: "Medium (default)" })).toHaveFocus();
-  fireEvent.click(within(menu).getByRole("menuitemradio", { name: "Extra High" }));
+  fireEvent.click(within(menu).getByRole("menuitemradio", { name: "High" }));
   expect(headers()["x-ai-model"]).toBe(model);
-  expect(headers()["x-reasoning-effort"]).toBe("xhigh");
+  expect(headers()["x-reasoning-effort"]).toBe("high");
   expect(aiButton()).toHaveFocus();
   expect(screen.queryByRole("menu")).not.toBeInTheDocument();
 });
@@ -131,9 +136,34 @@ it("persists selection and freezes model/effort attribution before the first rep
   expect(aiButton()).toHaveTextContent("claude-sonnet-5.5 · Max");
 });
 
+it("selects DeepSeek with only verified efforts and persists its attributed public alias", () => {
+  renderAll();
+  const menu = openEffort("deepseek-v4.1-flash");
+  expect(within(menu).getAllByRole("menuitemradio").map((option) => option.getAttribute("aria-label")))
+    .toEqual(["Low", "Medium (default)", "High"]);
+  fireEvent.click(within(menu).getByRole("menuitemradio", { name: "High" }));
+  expect(headers()).toEqual({
+    "x-ai-model": "deepseek-v4.1-flash", "x-decision-model": "Microsoft-Decision-1", "x-reasoning-effort": "high",
+  });
+  fireEvent.click(screen.getByText("run"));
+  expect(screen.getByTestId("model-chips")).toHaveTextContent("AI · deepseek-v4.1-flash · High");
+  fireEvent.click(screen.getByText("byok"));
+  expect(headers()).toEqual({});
+  expect(aiButton()).toHaveTextContent("chat-latest");
+  fireEvent.click(screen.getByText("shared"));
+  expect(aiButton()).toHaveTextContent("deepseek-v4.1-flash · High");
+  cleanup();
+  renderAll();
+  expect(aiButton()).toHaveTextContent("deepseek-v4.1-flash · High");
+  fireEvent.click(aiButton());
+  fireEvent.click(screen.getByRole("menuitemradio", { name: "deepseek-v4.1-flash" }));
+  expect(aiButton()).toHaveTextContent("deepseek-v4.1-flash · Medium");
+});
+
 it.each([
   [{ aiModel: "claude-sonnet-5.5" }, "claude-sonnet-5.5 · Medium"],
   [{ aiModel: "gpt-6.1-sol", reasoningEffort: "none" }, "gpt-6.1-sol · Medium"],
+  [{ aiModel: "deepseek-v4.1-flash", reasoningEffort: "max" }, "deepseek-v4.1-flash · Medium"],
   [{ aiModel: "unknown", reasoningEffort: "invalid" }, "gpt-6-luna · Medium"],
   [{ aiModel: "unknown", reasoningEffort: "max" }, "gpt-6-luna · Medium"],
   [null, "gpt-6-luna · Medium"],
@@ -176,6 +206,10 @@ it("normalizes malformed, missing and unsupported effort without enabling unknow
   expect(readModelHeaders(duplicate)["x-reasoning-effort"]).toBe("medium");
   expect(readModelHeaders(new Headers({ "x-reasoning-effort": "high", "x-ai-model": "unknown" }))).toEqual({});
   expect(readModelHeaders(new Headers())).toEqual({});
+  for (const effort of ["none", "xhigh", "max"]) {
+    expect(readModelHeaders(new Headers({ "x-ai-model": "deepseek-v4.1-flash", "x-reasoning-effort": effort })))
+      .toEqual({ "x-ai-model": "deepseek-v4.1-flash", "x-reasoning-effort": "medium" });
+  }
 });
 
 it("returns from the narrow-screen effort panel without changing selection", () => {
@@ -197,4 +231,20 @@ it("returns focus to the chevron and tabs out of the entire menu", async () => {
   fireEvent.keyDown(screen.getByRole("menu", { name: "AI model" }), { key: "Tab" });
   expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Decision model" })).toHaveFocus();
+});
+
+it("attributes snapshot-based replies to their run without labeling existing history", () => {
+  render(<ProviderKeysProvider><ModelSelectionProvider><ModelAttributionRecorder /><ModelSelectors /><Probe /></ModelSelectionProvider></ProviderKeysProvider>);
+  const subscriber = fakeAgent.subscribe.mock.calls.at(-1)![0];
+  const base = { agent: buildRuntimeOptions({}).agents.default, state: {} };
+  const old = { id: "old", role: "assistant" as const, content: "Old reply" };
+  const reply = { id: "m1", role: "assistant" as const, content: "New reply" };
+  const initialized = { ...base, messages: [old], input: { threadId: "thread", runId: "run", state: {}, messages: [old], tools: [], context: [] } };
+  act(() => { subscriber.onRunInitialized?.(initialized); });
+  chooseEffort("gpt-6.1-sol", "Max");
+  act(() => { subscriber.onMessagesChanged?.({ ...base, messages: [old, reply] }); });
+  expect(screen.getByTestId("model-chips")).toHaveTextContent("gpt-6-luna · Medium");
+  act(() => { subscriber.onRunFinalized?.({ ...initialized, messages: [old, reply] }); });
+  act(() => { subscriber.onMessagesChanged?.({ ...base, messages: [old, reply] }); });
+  expect(screen.getByTestId("model-chips")).not.toHaveTextContent("Max");
 });

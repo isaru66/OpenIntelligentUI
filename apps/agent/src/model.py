@@ -28,6 +28,8 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL = "gpt-6-luna"
 BYOK_DEFAULT_MODEL = "chat-latest"
+DEEPSEEK_MODEL = "deepseek-v4.1-flash"
+DEEPSEEK_DEPLOYMENT = "FW-DeepSeek-V4.1-Flash"
 
 MAX_MODEL_RETRIES = 3
 MODEL_RETRY_DELAYS = (2.0, 4.0, 8.0)
@@ -164,6 +166,35 @@ def _is_foundry_or_openai_model(model_name: str) -> bool:
     return model_name == "chat-latest" or model_name.startswith(FOUNDRY_MODEL_PREFIXES)
 
 
+def _is_deepseek_model(model: BaseChatModel) -> bool:
+    return getattr(model, "model_name", None) == DEEPSEEK_DEPLOYMENT
+
+
+def _skip_deepseek_empty_chunk(model: BaseChatModel, chunk: ChatGenerationChunk) -> bool:
+    # Fireworks emits empty deltas between tool headers and arguments; AG-UI
+    # otherwise interprets them as the end of the active tool call.
+    return (
+        _is_deepseek_model(model)
+        and not _chunk_has_payload(chunk)
+        and not chunk.generation_info
+        and not (chunk.message.response_metadata.keys() - {"model_provider"})
+    )
+
+
+class ModelOutputIncompleteError(ValueError):
+    """A provider exhausted its output budget before finishing the answer."""
+
+
+def _validate_deepseek_output(model: BaseChatModel, metadata: dict) -> None:
+    if _is_deepseek_model(model) and (
+        metadata.get("finish_reason") == "length" or metadata.get("status") == "incomplete"
+    ):
+        raise ModelOutputIncompleteError(
+            "The selected model reached its output limit before completing the answer. "
+            "Try a simpler request, a lower reasoning effort, or another model."
+        )
+
+
 def build_model(
     *,
     allow_unconfigured: bool = False,
@@ -171,14 +202,23 @@ def build_model(
     reasoning_effort: str | None = None,
 ) -> BaseChatModel:
     model_name = (model_name or os.environ.get("LLM_MODEL", DEFAULT_MODEL)).strip()
+    if model_name == DEEPSEEK_DEPLOYMENT:
+        model_name = DEEPSEEK_MODEL
     if reasoning_effort is not None and reasoning_effort not in REASONING_EFFORTS.get(model_name, ()):
         raise ValueError("Unsupported model and reasoning effort combination.")
-    is_openai = _is_foundry_or_openai_model(model_name)
+    is_deepseek = model_name == DEEPSEEK_MODEL
+    if is_deepseek and not is_azure_foundry_enabled():
+        raise ValueError(
+            "deepseek-v4.1-flash requires Azure AI Foundry with Entra ID authentication. "
+            "Set AZURE_AI_FOUNDRY_ENABLED=true and configure its Foundry deployment."
+        )
+    is_openai = is_deepseek or _is_foundry_or_openai_model(model_name)
     is_claude = model_name.startswith("claude-")
     if not is_openai and not is_claude:
         raise ValueError(
             "LLM_MODEL must name a supported provider: claude-* (Anthropic) "
-            "or gpt-*/chat-latest/Phi-*/DeepSeek-*/grok-*/Kimi-*/Llama-* (Azure AI Foundry / OpenAI). "
+            "or gpt-*/chat-latest/Phi-*/DeepSeek-*/grok-*/Kimi-*/Llama-* (Azure AI Foundry / OpenAI), "
+            "or deepseek-v4.1-flash/FW-DeepSeek-V4.1-Flash (Azure AI Foundry only). "
             "Unset LLM_MODEL to use the default."
         )
     if is_claude:
@@ -209,23 +249,31 @@ def build_model(
         is_sol = model_name.startswith("gpt-6.1-sol")
         effort = reasoning_effort
         if effort is None:
-            effort = os.environ.get("LLM_REASONING_EFFORT", "none").strip()
+            effort = os.environ.get(
+                "LLM_REASONING_EFFORT", DEFAULT_REASONING_EFFORT if is_deepseek else "none"
+            ).strip()
             if is_sol and effort in {"", "none"}:
                 effort = "low"
-        use_responses_api = model_name.startswith("gpt-6") or os.environ.get(
-            "LLM_USE_RESPONSES_API", ""
-        ).strip().lower() in {
-            "1",
-            "true",
-            "yes",
-        }
+        if is_deepseek and effort not in REASONING_EFFORTS[DEEPSEEK_MODEL]:
+            raise ValueError(
+                "LLM_REASONING_EFFORT for deepseek-v4.1-flash must be low, medium, or high."
+            )
+        # DeepSeek's Responses bridge truncates at 4096 tokens despite a larger
+        # max_output_tokens request. Its native Chat Completions honors the budget.
+        use_responses_api = not is_deepseek and (
+            model_name.startswith("gpt-6") or os.environ.get(
+                "LLM_USE_RESPONSES_API", ""
+            ).strip().lower() in {"1", "true", "yes"}
+        )
         foundry_kwargs: dict = {
-            "model": model_name,
+            "model": DEEPSEEK_DEPLOYMENT if is_deepseek else model_name,
             "base_url": get_foundry_openai_base_url(),
             "api_key": get_azure_token_provider(),
             "max_tokens": MAX_TOKENS,
             "max_retries": 0,
         }
+        if is_deepseek:
+            foundry_kwargs["use_responses_api"] = False
         if use_responses_api:
             foundry_kwargs["use_responses_api"] = True
             if effort:
@@ -459,9 +507,14 @@ class CredentialScopedModel(BaseChatModel):
             while True:
                 try:
                     model, options = self._target(kwargs)
-                    return model._generate(
+                    result = model._generate(
                         messages, stop=stop, run_manager=run_manager, **options
                     )
+                    for generation in result.generations:
+                        _validate_deepseek_output(
+                            model, {**generation.message.response_metadata, **(generation.generation_info or {})}
+                        )
+                    return result
                 except Exception as exc:
                     if not is_retryable_model_error(exc) or counter[0] >= MAX_MODEL_RETRIES:
                         raise
@@ -482,9 +535,14 @@ class CredentialScopedModel(BaseChatModel):
             while True:
                 try:
                     model, options = self._target(kwargs)
-                    return await model._agenerate(
+                    result = await model._agenerate(
                         messages, stop=stop, run_manager=run_manager, **options
                     )
+                    for generation in result.generations:
+                        _validate_deepseek_output(
+                            model, {**generation.message.response_metadata, **(generation.generation_info or {})}
+                        )
+                    return result
                 except Exception as exc:
                     if not is_retryable_model_error(exc) or counter[0] >= MAX_MODEL_RETRIES:
                         raise
@@ -515,6 +573,11 @@ class CredentialScopedModel(BaseChatModel):
                             if isinstance(raw_chunk, ChatGenerationChunk)
                             else ChatGenerationChunk(message=as_chunk(raw_chunk))
                         )
+                        _validate_deepseek_output(
+                            model, {**chunk.message.response_metadata, **(chunk.generation_info or {})}
+                        )
+                        if _skip_deepseek_empty_chunk(model, chunk):
+                            continue
                         if not yielded_payload:
                             if _chunk_has_payload(chunk):
                                 yielded_payload = True
@@ -564,6 +627,11 @@ class CredentialScopedModel(BaseChatModel):
                             if isinstance(raw_chunk, ChatGenerationChunk)
                             else ChatGenerationChunk(message=as_chunk(raw_chunk))
                         )
+                        _validate_deepseek_output(
+                            model, {**chunk.message.response_metadata, **(chunk.generation_info or {})}
+                        )
+                        if _skip_deepseek_empty_chunk(model, chunk):
+                            continue
                         if not yielded_payload:
                             if _chunk_has_payload(chunk):
                                 yielded_payload = True

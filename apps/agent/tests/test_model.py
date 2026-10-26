@@ -50,6 +50,56 @@ def test_gpt_6_1_sol_uses_same_foundry_resource_as_default(monkeypatch):
     assert default.reasoning == {"effort": "none"}
 
 
+@pytest.mark.parametrize("name", ["deepseek-v4.1-flash", "FW-DeepSeek-V4.1-Flash"])
+@pytest.mark.parametrize("configured_by_env", [False, True])
+def test_deepseek_uses_exact_deployment_chat_completions_and_existing_entra_auth(monkeypatch, name, configured_by_env):
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "true")
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENDPOINT", "https://example.services.ai.azure.com")
+    monkeypatch.setenv("LLM_USE_RESPONSES_API", "true")
+    monkeypatch.delenv("LLM_REASONING_EFFORT", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    provider = lambda: "entra-token"
+    monkeypatch.setattr(model_module, "get_azure_token_provider", lambda: provider)
+    if configured_by_env:
+        monkeypatch.setenv("LLM_MODEL", name)
+    model = build_model(**({} if configured_by_env else {"model_name": name}))
+    assert model.model_name == "FW-DeepSeek-V4.1-Flash"
+    assert model.openai_api_base == "https://example.services.ai.azure.com/openai/v1"
+    assert model.openai_api_key is provider
+    assert model.use_responses_api is False
+    assert model.reasoning is None
+    assert model.reasoning_effort == "medium"
+    assert model.max_tokens == model_module.MAX_TOKENS
+    assert model.max_retries == 0
+
+
+@pytest.mark.parametrize("name", ["deepseek-v4.1-flash", "FW-DeepSeek-V4.1-Flash"])
+@pytest.mark.parametrize("allow_unconfigured", [False, True])
+def test_deepseek_cannot_fall_back_to_public_openai(monkeypatch, name, allow_unconfigured):
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
+    monkeypatch.setenv("OPENAI_API_KEY", "public-key")
+    with pytest.raises(ValueError, match="AZURE_AI_FOUNDRY_ENABLED=true"):
+        build_model(model_name=name, allow_unconfigured=allow_unconfigured)
+
+
+@pytest.mark.parametrize("effort", ["low", "medium", "high"])
+def test_deepseek_headerless_effort_and_explicit_override(monkeypatch, effort):
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "true")
+    monkeypatch.setenv("LLM_REASONING_EFFORT", effort)
+    monkeypatch.setattr(model_module, "get_azure_token_provider", lambda: (lambda: "entra-token"))
+    assert build_model(model_name="deepseek-v4.1-flash").reasoning_effort == effort
+    monkeypatch.setenv("LLM_REASONING_EFFORT", "none")
+    assert build_model(model_name="deepseek-v4.1-flash", reasoning_effort=effort).reasoning_effort == effort
+
+
+@pytest.mark.parametrize("effort", ["", "none", "xhigh", "max", "HIGH"])
+def test_deepseek_rejects_unsupported_environment_effort(monkeypatch, effort):
+    monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "true")
+    monkeypatch.setenv("LLM_REASONING_EFFORT", effort)
+    with pytest.raises(ValueError, match="LLM_REASONING_EFFORT"):
+        build_model(model_name="deepseek-v4.1-flash")
+
+
 def test_foundry_disabled_or_byok_uses_standard_openai_and_anthropic(monkeypatch):
     monkeypatch.setenv("AZURE_AI_FOUNDRY_ENABLED", "false")
     monkeypatch.setenv("OPENAI_API_KEY", "server-openai-key")
@@ -136,6 +186,11 @@ def test_selected_effort_reaches_serialized_tool_capable_provider_request(monkey
         return httpx.Response(400, json={"error": {"type": "invalid_request_error", "message": "test capture"}}, request=request)
 
     monkeypatch.setattr(httpx.Client, "send", capture)
+    if name == "deepseek-v4.1-flash" and not foundry:
+        with pytest.raises(ValueError, match="Azure AI Foundry"):
+            build_model(model_name=name, reasoning_effort=effort)
+        assert captured == []
+        return
     model = build_model(model_name=name, reasoning_effort=effort)
     tools = [{
         "name": "get_weather", "description": "Look up weather.",
@@ -150,15 +205,24 @@ def test_selected_effort_reaches_serialized_tool_capable_provider_request(monkey
     assert len(captured) == 1
     payload = json.loads(captured[0].content)
     assert payload.get("stream", False) is streaming
-    assert payload["model"] == name
-    assert payload["tools"][0]["name"] == "get_weather"
-    assert "reasoning_effort" not in payload
-    if name.startswith("claude-"):
+    assert payload["model"] == ("FW-DeepSeek-V4.1-Flash" if name == "deepseek-v4.1-flash" else name)
+    if name == "deepseek-v4.1-flash":
+        assert captured[0].url.path.endswith("/chat/completions")
+        assert payload["tools"][0]["function"]["name"] == "get_weather"
+        assert payload["reasoning_effort"] == effort
+        assert payload["max_completion_tokens"] == model_module.MAX_TOKENS
+        assert "reasoning" not in payload
+        assert "max_output_tokens" not in payload
+    elif name.startswith("claude-"):
+        assert payload["tools"][0]["name"] == "get_weather"
+        assert "reasoning_effort" not in payload
         assert captured[0].url.path.endswith("/messages")
         assert payload["output_config"]["effort"] == effort
         assert payload["thinking"] == {"type": "adaptive"}
         assert payload["max_tokens"] == model_module.MAX_TOKENS
     else:
+        assert payload["tools"][0]["name"] == "get_weather"
+        assert "reasoning_effort" not in payload
         assert captured[0].url.path.endswith("/responses")
         assert payload["reasoning"] == {"effort": effort}
         assert payload["max_output_tokens"] == model_module.MAX_TOKENS
@@ -168,6 +232,8 @@ def test_selected_effort_reaches_serialized_tool_capable_provider_request(monkey
 @pytest.mark.parametrize(("name", "effort"), [
     ("gpt-6-luna", "auto"), ("gpt-6.1-sol", "none"), ("claude-sonnet-5.5", "none"),
     ("chat-latest", "medium"), ("claude-opus-4-6", "high"), ("gpt-6-luna", "HIGH"),
+    ("deepseek-v4.1-flash", "none"), ("deepseek-v4.1-flash", "xhigh"),
+    ("deepseek-v4.1-flash", "max"), ("FW-DeepSeek-V4.1-Flash", "none"),
 ])
 def test_explicit_effort_rejects_unsupported_combinations(name, effort):
     with pytest.raises(ValueError, match="combination"):

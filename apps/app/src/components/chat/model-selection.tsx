@@ -93,9 +93,23 @@ export function ModelAttributionRecorder() {
   const { agent } = useAgent();
   const { beginRun, attribute } = useModelSelection();
   useEffect(() => {
+    let recording = false;
+    let knownMessages = new Set<string>();
     const subscription = agent.subscribe({
-      onRunInitialized: () => { beginRun(); },
-      onNewMessage: ({ message }) => { if (message.role === "assistant") attribute(message.id); },
+      onRunInitialized: ({ messages }) => {
+        beginRun();
+        recording = true;
+        knownMessages = new Set(messages.map((message) => message.id));
+      },
+      // Snapshot-based responses do not always emit onNewMessage.
+      onMessagesChanged: ({ messages }) => {
+        if (!recording) return;
+        for (const message of messages) {
+          if (message.role === "assistant" && !knownMessages.has(message.id)) attribute(message.id);
+          knownMessages.add(message.id);
+        }
+      },
+      onRunFinalized: () => { recording = false; },
     });
     return () => subscription.unsubscribe();
   }, [agent, beginRun, attribute]);
