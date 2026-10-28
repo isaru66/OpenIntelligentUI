@@ -69,6 +69,34 @@ it("defaults to Medium and selects model names with keyboard at Medium", () => {
   expect(headers()).toEqual({ "x-ai-model": "gpt-6.1-sol", "x-decision-model": "Microsoft-Decision-1", "x-reasoning-effort": "medium" });
 });
 
+it.each([
+  ["gpt-6-luna", "openai"],
+  ["gpt-6.1-sol", "openai"],
+  ["claude-sonnet-5.5", "claude"],
+  ["deepseek-v4.1-flash", "deepseek"],
+])("shows the %s provider in its row and selected-model trigger", (model, provider) => {
+  renderAll();
+  fireEvent.click(aiButton());
+  const option = screen.getByRole("menuitemradio", { name: model });
+  const logo = option.querySelector(".model-provider-icon");
+  expect(logo).toHaveAttribute("data-provider", provider);
+  expect(logo).toHaveAttribute("aria-hidden", "true");
+  expect(logo).not.toHaveAttribute("tabindex");
+  if (provider !== "openai") {
+    const image = logo!.querySelector("img");
+    expect(image).toHaveAttribute("alt", "");
+    expect(image).toHaveAttribute("width", "16");
+    expect(image).toHaveAttribute("height", "16");
+    const source = image!.getAttribute("src")!;
+    expect(decodeURIComponent(source)).toContain(`/provider-icons/${provider}.${provider === "claude" ? "png" : "svg"}`);
+  }
+  fireEvent.click(option);
+  expect(aiButton().querySelector(".model-provider-icon")).toHaveAttribute("data-provider", provider);
+  expect(aiButton()).toHaveAccessibleName("AI model");
+  expect(aiButton()).toHaveTextContent(`${model} · Medium`);
+  expect(aiButton()).toHaveFocus();
+});
+
 it.each(AI_MODELS)("shows only supported efforts for %s without applying the previewed model", (model) => {
   renderAll();
   const menu = openEffort(model);
@@ -180,6 +208,8 @@ it("disables BYOK controls, omits shared overrides and attributes actual fixed m
   expect(aiButton()).toBeDisabled();
   expect(aiButton()).toHaveTextContent("chat-latest");
   expect(screen.getByRole("button", { name: "Decision model" })).toBeDisabled();
+  expect(aiButton().querySelector(".model-provider-icon")).toHaveAttribute("data-provider", "openai");
+  expect(screen.getByRole("button", { name: "Decision model" }).querySelector(".model-provider-icon")).toBeNull();
   expect(aiButton()).toHaveAccessibleDescription(/server-configured providers/);
   expect(headers()).toEqual({});
   fireEvent.click(screen.getByText("run"));
@@ -187,6 +217,16 @@ it("disables BYOK controls, omits shared overrides and attributes actual fixed m
   expect(screen.getByTestId("model-chips")).not.toHaveTextContent("High");
   fireEvent.click(screen.getByText("shared"));
   expect(aiButton()).toHaveTextContent("gpt-6.1-sol · High");
+});
+
+it("restores the selected provider icon after leaving BYOK mode", () => {
+  renderAll();
+  chooseEffort("claude-sonnet-5.5", "High");
+  expect(aiButton().querySelector(".model-provider-icon")).toHaveAttribute("data-provider", "claude");
+  fireEvent.click(screen.getByText("byok"));
+  expect(aiButton().querySelector(".model-provider-icon")).toHaveAttribute("data-provider", "openai");
+  fireEvent.click(screen.getByText("shared"));
+  expect(aiButton().querySelector(".model-provider-icon")).toHaveAttribute("data-provider", "claude");
 });
 
 it.each(AI_MODELS)("forwards every supported effort for %s through the runtime", (model) => {

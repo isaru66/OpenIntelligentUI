@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { CopilotChatInput, CopilotChatAssistantMessage } from "@copilotkit/react-core/v2";
 import type { ComponentProps } from "react";
+import Image from "next/image";
 import {
   AI_MODELS,
   DECISION_MODELS,
@@ -19,6 +20,22 @@ export const SparklesIcon = () => <svg {...icon}><path d="m12 3-1.9 5.8a2 2 0 0 
 export const GitBranchIcon = () => <svg {...icon}><line x1="6" x2="6" y1="3" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" /></svg>;
 const ChevronIcon = () => <svg {...icon}><path d="m6 9 6 6 6-6" /></svg>;
 const CheckIcon = () => <svg {...icon}><path d="M20 6 9 17l-5-5" /></svg>;
+
+const MODEL_PROVIDERS = {
+  "gpt-6-luna": "openai",
+  "gpt-6.1-sol": "openai",
+  "claude-sonnet-5.5": "claude",
+  "deepseek-v4.1-flash": "deepseek",
+  "chat-latest": "openai",
+} as const satisfies Record<AiModel | "chat-latest", "openai" | "claude" | "deepseek">;
+
+function ModelProviderIcon({ model }: { model: AiModel | "chat-latest" }) {
+  const provider = MODEL_PROVIDERS[model];
+  return <span className="model-provider-icon" data-provider={provider} aria-hidden="true">
+    {provider !== "openai" && <Image src={`/provider-icons/${provider}.${provider === "claude" ? "png" : "svg"}`}
+      alt="" width={16} height={16} loading="eager" />}
+  </span>;
+}
 
 type DropdownProps<T extends string> = {
   label: string;
@@ -224,7 +241,7 @@ function AiModelMenu({ disabled, describedBy }: { disabled: boolean; describedBy
       onKeyDown={(event) => {
         if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setOpen(true); }
       }}>
-      <span className="model-dropdown__icon"><SparklesIcon /></span>
+      <ModelProviderIcon model={disabled ? "chat-latest" : aiModel} />
       <span className="model-dropdown__value">{disabled ? "chat-latest" : `${aiModel} · ${EFFORT_LABELS[reasoningEffort]}`}</span>
       <ChevronIcon />
     </button>
@@ -234,6 +251,7 @@ function AiModelMenu({ disabled, describedBy }: { disabled: boolean; describedBy
           {AI_MODELS.map((model) => <div key={model} className="ai-model-menu__row">
             <button type="button" role="menuitemradio" tabIndex={-1} aria-checked={model === aiModel} data-model={model}
               className="model-dropdown__option ai-model-menu__select" onClick={() => { setAiModel(model); close(); }}>
+              <ModelProviderIcon model={model} />
               <span className="model-dropdown__option-text">{model}</span>
               {model === aiModel && <span className="model-dropdown__check"><CheckIcon /></span>}
             </button>
